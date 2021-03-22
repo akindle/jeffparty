@@ -1,0 +1,72 @@
+﻿<UserControl
+    x:Class="Jeffparty.Client.HostView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Jeffparty.Client"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{x:Static local:ViewModelLocator.HostView}"
+    mc:Ignorable="d">
+    <StackPanel Orientation="Horizontal">
+        <ItemsControl ItemsSource="{Binding Categories}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:CategoryViewModel}">
+                    <StackPanel Width="175">
+                        <Border BorderBrush="Blue" BorderThickness="4">
+                            <TextBlock
+                                MinHeight="75"
+                                FontWeight="Bold"
+                                Text="{Binding CategoryHeader}"
+                                TextWrapping="Wrap" />
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding CategoryQuestions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:QuestionViewModel}">
+                                    <Button
+                                        MinHeight="175"
+                                        HorizontalContentAlignment="Left"
+                                        BorderThickness="4"
+                                        Command="{Binding Doer}">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}">
+                                                <Setter Property="BorderBrush" Value="Blue" />
+                                                <Setter Property="Background" Value="AliceBlue" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsDailyDouble}" Value="True">
+                                                        <Setter Property="BorderBrush" Value="Red" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=IsAnswered}" Value="True">
+                                                        <Setter Property="Background" Value="Bisque" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <StackPanel>
+                                            <Label
+                                                Content="{Binding PointValue}"
+                                                FontSize="14"
+                                                FontWeight="Bold" />
+                                            <TextBlock Text="{Binding QuestionText}" TextWrapping="Wrap" />
+                                            <TextBlock
+                                                Margin="10"
+                                                FontSize="14"
+                                                FontStyle="Italic"
+                                                Text="{Binding AnswerText}"
+                                                TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Command="{Binding}" Content="Replace Category" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>
