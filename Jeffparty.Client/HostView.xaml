@@ -7,66 +7,75 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{x:Static local:ViewModelLocator.HostView}"
     mc:Ignorable="d">
-    <StackPanel Orientation="Horizontal">
-        <ItemsControl ItemsSource="{Binding Categories}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type local:CategoryViewModel}">
-                    <StackPanel Width="175">
-                        <Border BorderBrush="Blue" BorderThickness="4">
-                            <TextBlock
-                                MinHeight="75"
-                                FontWeight="Bold"
-                                Text="{Binding CategoryHeader}"
-                                TextWrapping="Wrap" />
-                        </Border>
-                        <ItemsControl ItemsSource="{Binding CategoryQuestions}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type local:QuestionViewModel}">
-                                    <Button
-                                        MinHeight="175"
-                                        HorizontalContentAlignment="Left"
-                                        BorderThickness="4"
-                                        Command="{Binding Doer}">
-                                        <Button.Style>
-                                            <Style TargetType="{x:Type Button}">
-                                                <Setter Property="BorderBrush" Value="Blue" />
-                                                <Setter Property="Background" Value="AliceBlue" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Path=IsDailyDouble}" Value="True">
-                                                        <Setter Property="BorderBrush" Value="Red" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Path=IsAnswered}" Value="True">
-                                                        <Setter Property="Background" Value="Bisque" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                        <StackPanel>
-                                            <Label
-                                                Content="{Binding PointValue}"
-                                                FontSize="14"
-                                                FontWeight="Bold" />
-                                            <TextBlock Text="{Binding QuestionText}" TextWrapping="Wrap" />
-                                            <TextBlock
-                                                Margin="10"
-                                                FontSize="14"
-                                                FontStyle="Italic"
-                                                Text="{Binding AnswerText}"
-                                                TextWrapping="Wrap" />
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Button Command="{Binding}" Content="Replace Category" />
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <ItemsControl ItemsSource="{Binding Categories}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:CategoryViewModel}">
+                        <StackPanel Width="175">
+                            <Border BorderBrush="Blue" BorderThickness="4">
+                                <TextBlock
+                                    MinHeight="84"
+                                    FontWeight="Bold"
+                                    Text="{Binding CategoryHeader}"
+                                    TextWrapping="Wrap" />
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding CategoryQuestions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type local:QuestionViewModel}">
+                                        <Button
+                                            MinHeight="175"
+                                            HorizontalContentAlignment="Left"
+                                            VerticalContentAlignment="Top"
+                                            BorderThickness="4"
+                                            Command="{Binding DataContext.AskQuestionCommand, RelativeSource={RelativeSource AncestorType=local:HostView}}"
+                                            CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="{x:Type Button}">
+                                                    <Setter Property="BorderBrush" Value="Blue" />
+                                                    <Setter Property="Background" Value="AliceBlue" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=IsDailyDouble}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="Red" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=IsAsked}" Value="True">
+                                                            <Setter Property="Background" Value="Bisque" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <StackPanel>
+                                                <Label
+                                                    Content="{Binding PointValue}"
+                                                    FontSize="14"
+                                                    FontWeight="Bold" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Text="{Binding QuestionText}"
+                                                    TextWrapping="Wrap" />
+                                                <TextBlock
+                                                    Margin="10"
+                                                    FontSize="14"
+                                                    FontStyle="Italic"
+                                                    Text="{Binding AnswerText}"
+                                                    TextWrapping="Wrap" />
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Command="{Binding}" Content="Replace Category" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+        <TextBlock Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+        <Button Command="{Binding PauseForAnswerCommand}" Content="Pause for answer" />
     </StackPanel>
 </UserControl>

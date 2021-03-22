@@ -11,6 +11,7 @@ namespace Jeffparty.Client
     {
         public PlayerView()
         {
+            DataContext = ViewModelLocator.PlayerView;
             InitializeComponent();
         }
     }

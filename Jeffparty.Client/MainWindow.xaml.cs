@@ -32,42 +32,12 @@ namespace Jeffparty.Client
             await Dispatcher.InvokeAsync(() =>
                 {
                    var newMessage = $"{user}: {message}";
-                   MessagesList.Items.Add(newMessage);
                 });
         }
 
         public Task UpdateGameState(GameState state)
         {
             throw new NotImplementedException();
-        }
-
-        private async void connectButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await connection.StartAsync();
-                connection.RegisterSpoke<IMessageSpoke>(this);
-                MessagesList.Items.Add("Connection started");
-                ConnectButton.IsEnabled = false;
-                SendButton.IsEnabled = true;
-            }
-            catch (Exception ex)
-            {
-                MessagesList.Items.Add(ex.Message);
-            }
-        }
-
-        private async void sendButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var dHub = connection.AsDynamicHub<IMessageHub>();
-                await dHub.SendMessage(UserTextBox.Text, MessageTextBox.Text);
-            }
-            catch (Exception ex)
-            {                
-                MessagesList.Items.Add(ex.Message);                
-            }
         }
     }
 }

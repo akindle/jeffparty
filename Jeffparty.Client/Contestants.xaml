@@ -1,0 +1,20 @@
+﻿<UserControl
+    x:Class="Jeffparty.Client.Contestants"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Jeffparty.Client"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{x:Static local:ViewModelLocator.ContestantsView}"
+    mc:Ignorable="d">
+    <ListView ItemsSource="{Binding Contestants}">
+        <ListView.View>
+            <GridView>
+                <GridView.Columns>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=PlayerName}" Header="Contestant" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" />
+                </GridView.Columns>
+            </GridView>
+        </ListView.View>
+    </ListView>
+</UserControl>
