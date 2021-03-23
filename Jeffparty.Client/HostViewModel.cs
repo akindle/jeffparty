@@ -2,27 +2,16 @@
 using System.Collections.Generic;
 using System.Windows.Threading;
 using Jeffparty.Client.Commands;
+using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
 {
     public class HostViewModel : Notifier
     {
-        public AskQuestion AskQuestionCommand
-        {
-            get;
-            set;
-        }
-
-        public PauseForAnswer PauseForAnswerCommand
-        {
-            get;
-            set;
-        }
-
         public TimeSpan AnswerTimeRemaining
         {
             get;
-            private set;
+            set;
         }
 
         public TimeSpan QuestionTimeRemaining
@@ -37,30 +26,27 @@ namespace Jeffparty.Client
             set;
         }
 
-        public DispatcherTimer AnswerTimer
+        public GameManager GameManager
         {
             get;
         }
 
-        public DispatcherTimer QuestionTimer
+        public HostViewModel(IMessageHub server)
         {
-            get;
+            GameManager = new GameManager(server);
         }
+    }
 
-        public DateTime lastQuestionFiring
+    public class GameManager : Notifier
+    {
+        IMessageHub server;
+        public GameManager(IMessageHub server)
         {
-            get;
-            set;
-        }
-
-        public DateTime lastAnswerFiring
-        {
-            get;
-            set;
-        }
-
-        public HostViewModel()
-        {
+            this.server = server;
+            PauseForAnswerCommand = new PauseForAnswer(this);
+            AskQuestionCommand = new AskQuestion(this);
+            GameState = new GameState();
+            PropertyChanged += (_, __) => server.PropagateGameState(GameState);
             AnswerTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(0.1)
@@ -71,34 +57,59 @@ namespace Jeffparty.Client
                 Interval = TimeSpan.FromSeconds(0.1)
             };
             QuestionTimer.Tick += QuestionTimer_Tick;
-            lastQuestionFiring = DateTime.Now;
-            lastAnswerFiring = DateTime.Now;
-            AskQuestionCommand = new AskQuestion(this);
-            PauseForAnswerCommand = new PauseForAnswer(this);
+            LastQuestionFiring = DateTime.Now;
+            LastAnswerFiring = DateTime.Now;
         }
 
+        public DispatcherTimer AnswerTimer
+        {
+            get;
+        }
+
+        public DispatcherTimer QuestionTimer
+        {
+            get;
+        }
+        
+
+        public DateTime LastQuestionFiring
+        {
+            get;
+            set;
+        }
+
+        public DateTime LastAnswerFiring
+        {
+            get;
+            set;
+        }
         private void AnswerTimer_Tick(object? sender, EventArgs e)
         {
-            AnswerTimeRemaining = AnswerTimeRemaining.Subtract(DateTime.Now.Subtract(lastAnswerFiring));
-            lastAnswerFiring = DateTime.Now;
-            if (AnswerTimeRemaining.TotalSeconds <= 0)
+            GameState.AnswerTimeRemaining = GameState.AnswerTimeRemaining.Subtract(DateTime.Now.Subtract(LastAnswerFiring));
+            LastAnswerFiring = DateTime.Now;
+            if (GameState.AnswerTimeRemaining.TotalSeconds <= 0)
             {
                 AnswerTimer.Stop();
-                AnswerTimeRemaining = default;
+                GameState.AnswerTimeRemaining = default;
             }
         }
 
         private void QuestionTimer_Tick(object? sender, EventArgs e)
         {
             PauseForAnswerCommand.NotifyExecutabilityChanged();
-            QuestionTimeRemaining = QuestionTimeRemaining.Subtract(DateTime.Now.Subtract(lastQuestionFiring));
-            lastQuestionFiring = DateTime.Now;
-            if (QuestionTimeRemaining.TotalSeconds <= 0)
+            GameState.QuestionTimeRemaining = GameState.QuestionTimeRemaining.Subtract(DateTime.Now.Subtract(LastQuestionFiring));
+            LastQuestionFiring = DateTime.Now;
+            if (GameState.QuestionTimeRemaining.TotalSeconds <= 0)
             {
                 QuestionTimer.Stop();
-                QuestionTimeRemaining = default;
+                GameState.QuestionTimeRemaining = default;
                 AskQuestionCommand.NotifyExecutabilityChanged();
             }
         }
+
+        public PauseForAnswer PauseForAnswerCommand{get;}
+        public AskQuestion AskQuestionCommand{get;}
+
+        public GameState GameState{get;}
     }
 }

@@ -1,23 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Jeffparty.Interfaces
 {
     public interface IMessageSpoke
     {
-        Task ReceiveMessage(string user, string message);
-
         Task UpdateGameState(GameState state);
+
+        Task OnConnected();
+        Task NotifyPlayerJoined(ContestantViewModel joiner);
+        Task FindOrCreatePlayerData(Guid joiner, string playerName);
     }
 
     public interface IMessageHub
     {
-        Task<bool> SendMessage(string user, string message);
-    }
-
-    public struct GameState
-    {
+        Task<bool> PropagateGameState(GameState state);
+        Task<bool> NotifyPlayerJoined(Guid joiner, string playerName);
+        Task<bool> FoundJoiningPlayer(ContestantViewModel contestant);
+        Task<bool> BuzzIn();
     }
 }

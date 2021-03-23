@@ -4,16 +4,16 @@ namespace Jeffparty.Client.Commands
 {
     public class AskQuestion : CommandBase
     {
-        private readonly HostViewModel host;
+        private readonly GameManager game;
 
-        public AskQuestion(HostViewModel host)
+        public AskQuestion(GameManager game)
         {
-            this.host = host;
+            this.game = game;
         }
 
         public override bool CanExecute(object? parameter)
         {
-            return !host.QuestionTimer.IsEnabled;
+            return !game.QuestionTimer.IsEnabled;
         }
 
         public override void Execute(object? parameter)
@@ -23,9 +23,9 @@ namespace Jeffparty.Client.Commands
                 question.IsAsked = true;
             }
 
-            host.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
-            host.lastQuestionFiring = DateTime.Now;
-            host.QuestionTimer.Start();
+            game.GameState.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
+            game.LastQuestionFiring = DateTime.Now;
+            game.QuestionTimer.Start();
             NotifyExecutabilityChanged();
         }
     }

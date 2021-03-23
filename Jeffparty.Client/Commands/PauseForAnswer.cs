@@ -2,21 +2,21 @@
 {
     public class PauseForAnswer : CommandBase
     {
-        private readonly HostViewModel host;
+        private readonly GameManager game;
 
-        public PauseForAnswer(HostViewModel host)
+        public PauseForAnswer(GameManager game)
         {
-            this.host = host;
+            this.game = game;
         }
 
         public override bool CanExecute(object? parameter)
         {
-            return host.AnswerTimer.IsEnabled;
+            return game.AnswerTimer.IsEnabled;
         }
 
         public override void Execute(object? parameter)
         {
-            host.AnswerTimer.Stop();
+            game.AnswerTimer.Stop();
             NotifyExecutabilityChanged();
         }
     }

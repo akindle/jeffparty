@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
-namespace Jeffparty.Client
+namespace Jeffparty.Interfaces
 {
     public sealed class ContestantsViewModel : Notifier
     {
-        public List<ContestantViewModel> Contestants
+        public ObservableCollection<ContestantViewModel> Contestants
         {
             get;
             set;
@@ -12,7 +13,7 @@ namespace Jeffparty.Client
 
         public ContestantsViewModel()
         {
-            Contestants = new List<ContestantViewModel>
+            Contestants = new ObservableCollection<ContestantViewModel>
             {
                 new ContestantViewModel { PlayerName = "Player 1", Score = -12000 },
                 new ContestantViewModel { PlayerName = "Player 2", Score = 4600 },

@@ -3,11 +3,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interfaces="clr-namespace:Jeffparty.Interfaces;assembly=Jeffparty.Interfaces"
     xmlns:local="clr-namespace:Jeffparty.Client"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{x:Static local:ViewModelLocator.PlayerView}"
     mc:Ignorable="d">
     <StackPanel>
+        <TextBlock Text="{Binding Player.PlayerName}" />
         <StackPanel Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding GameboardCategories}">
                 <ItemsControl.ItemsPanel>
@@ -16,7 +18,7 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type local:PlayerCategoryViewModel}">
+                    <DataTemplate DataType="{x:Type interfaces:PlayerCategoryViewModel}">
                         <StackPanel Width="150">
                             <Border
                                 Background="AliceBlue"
@@ -32,7 +34,7 @@
                             </Border>
                             <ItemsControl ItemsSource="{Binding CategoryValues}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type local:CategoryValueViewModel}">
+                                    <DataTemplate DataType="{x:Type interfaces:CategoryValueViewModel}">
                                         <Border
                                             Background="AliceBlue"
                                             BorderBrush="Blue"
@@ -62,7 +64,77 @@
             </ItemsControl>
 
         </StackPanel>
-        <Label Content="{Binding ActiveQuestion}" />
-        <Button Content="Buzzer" />
+        <StackPanel Orientation="Horizontal">
+            <StackPanel Width="400" HorizontalAlignment="Left">
+                <TextBlock
+                    Width="400"
+                    MinHeight="100"
+                    HorizontalAlignment="Left"
+                    Text="{Binding ActiveQuestion}"
+                    TextWrapping="Wrap" />
+                <TextBlock>
+                    <Run Text="Time left to answer: " />
+                    <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+                </TextBlock>
+                <Button Click="Button_Click" Content="Buzzer" />
+            </StackPanel>
+            <Grid Visibility="{Binding IsWagerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Text="Final Jeopardy!"
+                    Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Text="{Binding FinalJeopardyCategory}"
+                    Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Text="Wager:" />
+                <TextBox
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    FontSize="24"
+                    Text="Wager goes here" />
+                <Button
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Content="Submit wager" />
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0"
+                    Text="Final Jeopardy Answer:"
+                    Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <TextBox
+                    Grid.Row="5"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    FontSize="24"
+                    Text="Answer goes here"
+                    Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <Button
+                    Grid.Row="6"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Content="Submit answer"
+                    Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </Grid>
+        </StackPanel>
     </StackPanel>
 </UserControl>

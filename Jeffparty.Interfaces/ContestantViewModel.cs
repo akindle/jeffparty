@@ -1,4 +1,6 @@
-﻿namespace Jeffparty.Client
+﻿using System;
+
+namespace Jeffparty.Interfaces
 {
     public sealed class ContestantViewModel : Notifier
     {
@@ -12,6 +14,11 @@
         {
             get;
             set;
+        }
+
+        public Guid Guid
+        {
+            get;set;
         }
 
         public ContestantViewModel()

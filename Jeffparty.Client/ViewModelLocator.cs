@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
 {
@@ -23,12 +25,7 @@ namespace Jeffparty.Client
         {
             get
             {
-                if (playerView == null)
-                {
-                    playerView = new PlayerViewModel();
-                }
-
-                return playerView;
+                return playerView ??= new PlayerViewModel(new PersistedSettings(Guid.Empty, "New Player", "http://localhost/"));
             }
         }
 
@@ -36,7 +33,7 @@ namespace Jeffparty.Client
         {
             get
             {
-                return hostView ??= new HostViewModel
+                return hostView ??= new HostViewModel(new MockHub())
                 {
                     Categories = new List<CategoryViewModel>
                     {
@@ -53,6 +50,34 @@ namespace Jeffparty.Client
                         CategoryViewModel.CreateRandom(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException()
                     }
                 };
+            }
+        }
+
+        private class MockHub : IMessageHub
+        {
+            public Task<bool> SendMessage(string user, string message)
+            {
+                return Task.FromResult(false);
+            }
+
+            public Task<bool> PropagateGameState(GameState state)
+            {
+                return Task.FromResult(false);
+            }
+
+            public Task<string> GetUserId()
+            {
+                return Task.FromResult("Mocked");
+            }
+
+            public Task<bool> NotifyPlayerJoined(ContestantViewModel joiner)
+            {
+                return Task.FromResult(false);
+            }
+
+            public Task<string?> GetMyIdentity()
+            {
+                return Task.FromResult("Mocked");
             }
         }
     }

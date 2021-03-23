@@ -5,12 +5,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Jeffparty.Client"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="I Cant Believe Its Not Jeffparty - Host View"
+    Title="{Binding Title}"
+    d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
     SizeToContent="WidthAndHeight"
     mc:Ignorable="d">
     <StackPanel Orientation="Horizontal">
-        <local:PlayerView />
-        <local:HostView />
-        <local:Contestants />
+        <local:PlayerView DataContext="{Binding PlayerViewModel}" Visibility="{Binding DataContext.IsPlayer, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <local:HostView DataContext="{Binding HostViewModel}" Visibility="{Binding DataContext.IsHost, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <local:Contestants DataContext="{Binding ContestantsViewModel}" />
     </StackPanel>
 </Window>

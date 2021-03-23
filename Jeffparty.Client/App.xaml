@@ -9,6 +9,7 @@
             <Style TargetType="{x:Type TextBlock}">
                 <Setter Property="FontSize" Value="20" />
             </Style>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -28,7 +28,7 @@
                                             HorizontalContentAlignment="Left"
                                             VerticalContentAlignment="Top"
                                             BorderThickness="4"
-                                            Command="{Binding DataContext.AskQuestionCommand, RelativeSource={RelativeSource AncestorType=local:HostView}}"
+                                            Command="{Binding DataContext.GameManager.AskQuestionCommand, RelativeSource={RelativeSource AncestorType=local:HostView}}"
                                             CommandParameter="{Binding}">
                                             <Button.Style>
                                                 <Style TargetType="{x:Type Button}">
@@ -75,7 +75,18 @@
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
         </StackPanel>
-        <TextBlock Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
-        <Button Command="{Binding PauseForAnswerCommand}" Content="Pause for answer" />
+        <TextBlock>
+            <Run Text="Question time remaining:" />
+            <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+        </TextBlock>
+        <TextBlock>
+            <Run Text="Answer time remaining: " />
+            <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+        </TextBlock>
+        <Button Command="{Binding GameManager.PauseForAnswerCommand}" Content="Pause for answer" />
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Correct" />
+            <Button Content="Incorrect" />
+        </StackPanel>
     </StackPanel>
 </UserControl>

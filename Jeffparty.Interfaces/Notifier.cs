@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Jeffparty.Client
+namespace Jeffparty.Interfaces
 {
     public abstract class Notifier : INotifyPropertyChanged
     {

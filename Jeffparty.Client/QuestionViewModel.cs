@@ -1,4 +1,6 @@
-﻿namespace Jeffparty.Client
+﻿using Jeffparty.Interfaces;
+
+namespace Jeffparty.Client
 {
     public class QuestionViewModel : Notifier
     {
