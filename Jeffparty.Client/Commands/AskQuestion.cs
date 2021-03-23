@@ -21,13 +21,13 @@ namespace Jeffparty.Client.Commands
             if (parameter is QuestionViewModel question)
             {
                 question.IsAsked = true;
-                game.GameState.CurrentQuestion = question.QuestionText;
+                game.CurrentQuestion = question.QuestionText;
             }
 
-            game.GameState.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
+            game.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
             game.LastQuestionFiring = DateTime.Now;
             game.QuestionTimer.Start();
-            await game.Server.PropagateGameState(game.GameState);
+            await game.PropagateGameState().ConfigureAwait(true);
             NotifyExecutabilityChanged();
         }
     }

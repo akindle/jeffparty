@@ -27,7 +27,7 @@ namespace Jeffparty.Client
                 var settingsPath = $"{Directory.GetCurrentDirectory()}\\settings.xml";
                 var xml = new XmlSerializer(typeof(PersistedSettings));
                 using var stream = File.OpenRead(settingsPath);
-                return (PersistedSettings)xml.Deserialize(stream);
+                return ((PersistedSettings)xml.Deserialize(stream))!;
             }
             catch
             {

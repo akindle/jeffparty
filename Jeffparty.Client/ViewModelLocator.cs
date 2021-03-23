@@ -33,7 +33,7 @@ namespace Jeffparty.Client
         {
             get
             {
-                return hostView ??= new HostViewModel(new MockHub())
+                return hostView ??= new HostViewModel(new MockHub(), new ContestantsViewModel())
                 {
                     Categories = new List<CategoryViewModel>
                     {

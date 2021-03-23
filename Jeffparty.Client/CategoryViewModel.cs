@@ -19,16 +19,16 @@ namespace Jeffparty.Client
         public string CategoryHeader
         {
             get;
-            set;
+            private set;
         } = string.Empty;
 
         public List<QuestionViewModel> CategoryQuestions
         {
             get;
-            set;
-        } = new List<QuestionViewModel>();
+            private set;
+        } = new();
 
-        internal string rootDirectory = Directory.GetCurrentDirectory();
+        private string _rootDirectory = Directory.GetCurrentDirectory();
 
         public bool CanExecute(object? parameter)
         {
@@ -37,7 +37,7 @@ namespace Jeffparty.Client
 
         public void Execute(object? parameter)
         {
-            var tempReplacement = CreateRandom(rootDirectory);
+            var tempReplacement = CreateRandom(_rootDirectory);
             CategoryHeader = tempReplacement?.CategoryHeader ?? "No Category Loaded";
             CategoryQuestions = tempReplacement?.CategoryQuestions ?? new List<QuestionViewModel>();
         }
@@ -48,11 +48,10 @@ namespace Jeffparty.Client
                 .Where(fileName => fileName.Contains("category")).ToList();
             var rand = new Random();
             CategoryViewModel? result = null;
-            string path;
             bool shouldLoop;
             do
             {
-                path = files[rand.Next(0, files.Count)];
+                var path = files[rand.Next(0, files.Count)];
                 shouldLoop = !UsedPaths.Add(path) || !ValidatePath(path, out result) || result == null;
                 if (UsedPaths.Count == files.Count)
                 {
@@ -62,7 +61,7 @@ namespace Jeffparty.Client
 
             if (result != null)
             {
-                result.rootDirectory = rootDirectory;
+                result._rootDirectory = rootDirectory;
             }
 
             return result;

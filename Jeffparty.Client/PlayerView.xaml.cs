@@ -72,7 +72,7 @@ namespace Jeffparty.Client
         public void Update(GameState newState)
         {
             ActiveQuestion = newState.CurrentQuestion;
-            GameboardCategories = newState.Categories;
+            //GameboardCategories = newState.Categories;
             QuestionTimeRemaining = newState.QuestionTimeRemaining;
             IsWagerVisible = newState.PlayerWithDailyDouble == Settings.Guid || newState.IsFinalJeopardy;
             IsFinalJeopardy = newState.IsFinalJeopardy;
