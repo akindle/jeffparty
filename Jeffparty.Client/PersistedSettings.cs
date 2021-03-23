@@ -18,12 +18,15 @@ namespace Jeffparty.Client
             set;
         } = string.Empty;
 
+        public bool IsHost{get;set;}
+
         public PersistedSettings(Guid guid, string playerName, string hostUrl)
         {
             Guid = guid;
             PlayerName = playerName;
             HostUrl = hostUrl;
             PropertyChanged += (_, __) => SaveSettings();
+            IsHost = false;
         }
 
         private PersistedSettings(){}

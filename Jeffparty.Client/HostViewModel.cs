@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Threading;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
+using System.Linq;
 
 namespace Jeffparty.Client
 {
@@ -20,7 +21,7 @@ namespace Jeffparty.Client
             set;
         }
 
-        public List<CategoryViewModel>? Categories
+        public List<CategoryViewModel> Categories
         {
             get;
             set;
@@ -33,20 +34,65 @@ namespace Jeffparty.Client
 
         public HostViewModel(IMessageHub server)
         {
-            GameManager = new GameManager(server);
+            Categories = new List<CategoryViewModel>
+            {
+                CategoryViewModel.CreateRandom(
+                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException(),
+                CategoryViewModel.CreateRandom(
+                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException(),
+                CategoryViewModel.CreateRandom(
+                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException(),
+                CategoryViewModel.CreateRandom(
+                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException(),
+                CategoryViewModel.CreateRandom(
+                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException(),
+                CategoryViewModel.CreateRandom(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ?? throw new InvalidOperationException()
+            };
+
+            GameManager = new GameManager(server, this);
         }
     }
 
     public class GameManager : Notifier
     {
-        IMessageHub server;
-        public GameManager(IMessageHub server)
+        public IMessageHub Server
         {
-            this.server = server;
+            get;
+        }
+
+        public GameManager(IMessageHub server, HostViewModel hostViewModel)
+        {
+            this.Server = server;
             PauseForAnswerCommand = new PauseForAnswer(this);
             AskQuestionCommand = new AskQuestion(this);
-            GameState = new GameState();
-            PropertyChanged += (_, __) => server.PropagateGameState(GameState);
+            GameState = new GameState { Categories = hostViewModel.Categories.Select(category => new PlayerCategoryViewModel(category.CategoryHeader, 200)).ToList() };
+            GameState.PropertyChanged += (sender, e) =>
+            {
+                //server.PropagateGameState(GameState);
+                switch (e.PropertyName)
+                {
+                    case nameof(GameState.QuestionTimeRemaining):
+                        hostViewModel.QuestionTimeRemaining = GameState.QuestionTimeRemaining;
+                        break;
+                    case nameof(GameState.AnswerTimeRemaining):
+                        hostViewModel.AnswerTimeRemaining = GameState.AnswerTimeRemaining;
+                        break;
+                    default:
+                        return;
+                }
+            };
+            hostViewModel.PropertyChanged += (sender, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(hostViewModel.Categories):
+                        GameState.Categories = hostViewModel.Categories.Select(category => new PlayerCategoryViewModel(category.CategoryHeader, 200)).ToList();
+                        break;
+                    default:
+                        return;
+                }
+            };
+//            PropertyChanged += (_, __) => server.PropagateGameState(GameState);
             AnswerTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(0.1)
@@ -102,8 +148,13 @@ namespace Jeffparty.Client
             if (GameState.QuestionTimeRemaining.TotalSeconds <= 0)
             {
                 QuestionTimer.Stop();
+                GameState.CanBuzzIn = true;
                 GameState.QuestionTimeRemaining = default;
                 AskQuestionCommand.NotifyExecutabilityChanged();
+            }
+            else
+            {
+                GameState.CanBuzzIn = false;
             }
         }
 

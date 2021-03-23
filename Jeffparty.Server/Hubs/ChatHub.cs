@@ -8,10 +8,10 @@ namespace Jeffparty.Server.Hubs
     public class ChatHub : Hub<IMessageSpoke>, IMessageHub
     {
 
-        public async Task<bool> PropagateGameState(GameState state)
+        public async Task<int> PropagateGameState(GameState state)
         {
             await Clients.Others.UpdateGameState(state);
-            return true;
+            return 5;
         }
 
         public Task<bool> BuzzIn()

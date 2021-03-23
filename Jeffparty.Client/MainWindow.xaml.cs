@@ -72,6 +72,7 @@ namespace Jeffparty.Client
         public async Task OnConnected()
         {
             await hub.NotifyPlayerJoined(settings.Guid, settings.PlayerName);
+            viewModel.ConnectionId = "Connected";
         }
 
         public async Task NotifyPlayerJoined(ContestantViewModel joiner)

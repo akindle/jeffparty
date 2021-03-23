@@ -55,6 +55,7 @@ namespace Jeffparty.Client
 
         public MainWindowViewModel(IMessageHub dhub, PersistedSettings settings)
         {
+            IsHost = settings.IsHost;
             PersistedSettings = settings;
             HostViewModel = new HostViewModel(dhub);
             PlayerViewModel = new PlayerViewModel(settings);

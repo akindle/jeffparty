@@ -60,24 +60,24 @@ namespace Jeffparty.Client
                 return Task.FromResult(false);
             }
 
-            public Task<bool> PropagateGameState(GameState state)
+            public Task<int> PropagateGameState(GameState state)
+            {
+                return Task.FromResult(5);
+            }
+
+            public Task<bool> NotifyPlayerJoined(Guid joiner, string playerName)
             {
                 return Task.FromResult(false);
             }
 
-            public Task<string> GetUserId()
-            {
-                return Task.FromResult("Mocked");
-            }
-
-            public Task<bool> NotifyPlayerJoined(ContestantViewModel joiner)
+            public Task<bool> FoundJoiningPlayer(ContestantViewModel contestant)
             {
                 return Task.FromResult(false);
             }
 
-            public Task<string?> GetMyIdentity()
+            public Task<bool> BuzzIn()
             {
-                return Task.FromResult("Mocked");
+                return Task.FromResult(false);
             }
         }
     }

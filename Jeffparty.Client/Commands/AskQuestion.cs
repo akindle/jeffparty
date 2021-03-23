@@ -16,16 +16,18 @@ namespace Jeffparty.Client.Commands
             return !game.QuestionTimer.IsEnabled;
         }
 
-        public override void Execute(object? parameter)
+        public override async void Execute(object? parameter)
         {
             if (parameter is QuestionViewModel question)
             {
                 question.IsAsked = true;
+                game.GameState.CurrentQuestion = question.QuestionText;
             }
 
             game.GameState.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
             game.LastQuestionFiring = DateTime.Now;
             game.QuestionTimer.Start();
+            await game.Server.PropagateGameState(game.GameState);
             NotifyExecutabilityChanged();
         }
     }
