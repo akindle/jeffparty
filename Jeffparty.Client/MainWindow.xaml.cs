@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,7 +32,7 @@ namespace Jeffparty.Client
             }
             catch
             {
-                var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player", "https://localhost:44391/ChatHub");
+                var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player", "https://jeffparty.alexkindle.com/ChatHub");
                 newSettings.SaveSettings();
                 return newSettings;
             }
@@ -39,23 +40,31 @@ namespace Jeffparty.Client
 
         public MainWindow()
         {
-            settings = TryLoadSettings();
-            connection = new HubConnectionBuilder()
-                .WithUrl(settings.HostUrl)
-                .WithAutomaticReconnect()
-                .Build();
-
-            connection.Closed += async error =>
+            try
             {
-                await Task.Delay(new Random().Next(0, 5) * 1000);
-                await connection.StartAsync();
-            };
-            
-            connection.RegisterSpoke<IMessageSpoke>(this);
-            hub = connection.AsDynamicHub<IMessageHub>();
-            viewModel = new MainWindowViewModel(hub, settings);
-            DataContext = viewModel;
-            InitializeComponent();
+                settings = TryLoadSettings();
+                connection = new HubConnectionBuilder()
+                    .WithUrl(settings.HostUrl)
+                    .WithAutomaticReconnect()
+                    .Build();
+
+                connection.Closed += async error =>
+                {
+                    await Task.Delay(new Random().Next(0, 5) * 1000);
+                    await connection.StartAsync();
+                };
+
+                connection.RegisterSpoke<IMessageSpoke>(this);
+                hub = connection.AsDynamicHub<IMessageHub>();
+                viewModel = new MainWindowViewModel(hub, settings);
+                DataContext = viewModel;
+                InitializeComponent();
+            }
+            catch (Exception e)
+            {
+                Debug.Fail(e.ToString());
+            }
+
             this.Loaded += MainWindow_Loaded;
         }
 

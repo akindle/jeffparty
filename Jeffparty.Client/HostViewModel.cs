@@ -19,26 +19,41 @@ namespace Jeffparty.Client
 
         public HostViewModel(IMessageHub server, ContestantsViewModel contestants)
         {
-            Categories = new List<CategoryViewModel>
+            try
             {
-                CategoryViewModel.CreateRandom(
-                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException(),
-                CategoryViewModel.CreateRandom(
-                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException(),
-                CategoryViewModel.CreateRandom(
-                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException(),
-                CategoryViewModel.CreateRandom(
-                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException(),
-                CategoryViewModel.CreateRandom(
-                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException(),
-                CategoryViewModel.CreateRandom(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
-                throw new InvalidOperationException()
-            };
+                Categories = new List<CategoryViewModel>
+                {
+                    CategoryViewModel.CreateRandom(
+                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.CreateRandom(
+                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.CreateRandom(
+                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.CreateRandom(
+                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.CreateRandom(
+                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.CreateRandom(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.GenerateNonsense()
+                };
+            }
+            catch
+            {
+                Categories = new List<CategoryViewModel>
+                {
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.GenerateNonsense(),
+                    CategoryViewModel.GenerateNonsense()
+                };
+            }
 
             GameManager = new GameManager(server, this, contestants);
             GameManager.PropertyChanged += (sender, args) =>

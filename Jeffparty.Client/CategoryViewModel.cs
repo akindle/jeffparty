@@ -42,29 +42,44 @@ namespace Jeffparty.Client
             CategoryQuestions = tempReplacement?.CategoryQuestions ?? new List<QuestionViewModel>();
         }
 
+        public static CategoryViewModel GenerateNonsense()
+        {
+            var result = new CategoryViewModel();
+            result.CategoryHeader = "that aint real";
+            result.CategoryQuestions = Enumerable.Range(1, 5).Select(a => new QuestionViewModel()).ToList();
+            return result;
+        }
+
         public static CategoryViewModel? CreateRandom(string rootDirectory)
         {
-            var files = Directory.EnumerateFiles(rootDirectory)
-                .Where(fileName => fileName.Contains("category")).ToList();
-            var rand = new Random();
-            CategoryViewModel? result = null;
-            bool shouldLoop;
-            do
+            try
             {
-                var path = files[rand.Next(0, files.Count)];
-                shouldLoop = !UsedPaths.Add(path) || !ValidatePath(path, out result) || result == null;
-                if (UsedPaths.Count == files.Count)
+                var files = Directory.EnumerateFiles(rootDirectory)
+                    .Where(fileName => fileName.Contains("category")).ToList();
+                var rand = new Random();
+                CategoryViewModel? result = null;
+                bool shouldLoop;
+                do
                 {
-                    shouldLoop = false;
+                    var path = files[rand.Next(0, files.Count)];
+                    shouldLoop = !UsedPaths.Add(path) || !ValidatePath(path, out result) || result == null;
+                    if (UsedPaths.Count == files.Count)
+                    {
+                        shouldLoop = false;
+                    }
+                } while (shouldLoop);
+
+                if (result != null)
+                {
+                    result._rootDirectory = rootDirectory;
                 }
-            } while (shouldLoop);
 
-            if (result != null)
-            {
-                result._rootDirectory = rootDirectory;
+                return result;
             }
-
-            return result;
+            catch
+            {
+                return null;
+            }
         }
 
         private static string CleanUpString(string input)
