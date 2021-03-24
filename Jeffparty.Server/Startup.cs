@@ -34,7 +34,7 @@ namespace Jeffparty.Server
             
             services.Configure<ForwardedHeadersOptions>(options =>
             {
-                options.KnownProxies.Add(Dns.GetHostEntry("nginx").AddressList.FirstOrDefault())
+                options.KnownProxies.Add(Dns.GetHostEntry("nginx").AddressList.FirstOrDefault());
             });
         }
 
