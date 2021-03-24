@@ -25,7 +25,7 @@ namespace Jeffparty.Client
         public List<QuestionViewModel> CategoryQuestions
         {
             get;
-            private set;
+            set;
         } = new();
 
         private string _rootDirectory = Directory.GetCurrentDirectory();
@@ -89,7 +89,7 @@ namespace Jeffparty.Client
                 var answerText = File.ReadAllLines(answersPath);
                 Debug.Assert(questionText[0] == answerText[0]);
                 var res = new CategoryViewModel { CategoryHeader = CleanUpString(questionText[0]) };
-                for (var i = 1u; i < questionText.Length; i++)
+                for (var i = 1; i < questionText.Length; i++)
                 {
                     if (questionText[i].Contains("<"))
                     {

@@ -76,6 +76,10 @@
             </ItemsControl>
         </StackPanel>
         <TextBlock>
+            <Run Text="Board controlled by:"/>
+            <Run Text="{Binding BoardController, Mode=OneWay}"/>
+        </TextBlock>
+        <TextBlock>
             <Run Text="Question time remaining:" />
             <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
         </TextBlock>
@@ -85,8 +89,8 @@
         </TextBlock>
         <Button Command="{Binding GameManager.PauseForAnswerCommand}" Content="Pause for answer" />
         <StackPanel Orientation="Horizontal">
-            <Button Content="Correct" />
-            <Button Content="Incorrect" />
+            <Button Content="Correct" Command="{Binding GameManager.AnswerCommand}" CommandParameter="True" />
+            <Button Content="Incorrect" Command="{Binding GameManager.AnswerCommand}" CommandParameter="False" />
         </StackPanel>
     </StackPanel>
 </UserControl>

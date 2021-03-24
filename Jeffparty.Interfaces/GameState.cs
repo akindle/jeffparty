@@ -27,9 +27,9 @@ namespace Jeffparty.Interfaces
 
         public List<Contestant> Contestants { get; init; }
 
-        public TimeSpan AnswerTimeRemaining { get; init; }
+        public double AnswerTimeRemainingSeconds { get; init; }
 
-        public TimeSpan QuestionTimeRemaining { get; init; }
+        public double QuestionTimeRemainingSeconds { get; init; }
 
         public bool CanBuzzIn { get; init; }
 
@@ -40,5 +40,6 @@ namespace Jeffparty.Interfaces
         public bool IsFinalJeopardy { get; init; }
 
         public string? FinalJeopardyCategory { get; init; }
+        public Guid BuzzedInPlayerId { get; init; }
     }
 }

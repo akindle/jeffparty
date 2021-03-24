@@ -17,10 +17,10 @@ namespace Jeffparty.Interfaces
             set;
         }
 
-        public PlayerCategoryViewModel(string title, uint baseValue)
+        public PlayerCategoryViewModel(string title, int baseValue)
         {
             CategoryTitle = title;
-            CategoryValues = Enumerable.Range(1, 5).Select(a => new CategoryValueViewModel((uint)(a * baseValue)))
+            CategoryValues = Enumerable.Range(1, 5).Select(a => new CategoryValueViewModel((int)(a * baseValue)))
                 .ToList();
         }
     }

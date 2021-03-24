@@ -22,7 +22,7 @@ namespace Jeffparty.Client
             set;
         }
 
-        public uint PointValue
+        public int PointValue
         {
             get;
             set;

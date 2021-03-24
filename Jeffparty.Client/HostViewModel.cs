@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
@@ -13,6 +14,8 @@ namespace Jeffparty.Client
         public List<CategoryViewModel> Categories { get; set; }
 
         public GameManager GameManager { get; }
+
+        public string BoardController => GameManager.LastCorrectPlayer?.PlayerName ?? "Unknown";
 
         public HostViewModel(IMessageHub server, ContestantsViewModel contestants)
         {
@@ -38,6 +41,21 @@ namespace Jeffparty.Client
             };
 
             GameManager = new GameManager(server, this, contestants);
+            GameManager.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(GameManager.LastCorrectPlayer))
+                {
+                    OnPropertyChanged(nameof(BoardController));
+                }
+            };
+
+            contestants.Contestants.CollectionChanged += (sender, args) =>
+            {
+                if (args.Action == NotifyCollectionChangedAction.Add)
+                {
+                    OnPropertyChanged(nameof(BoardController));
+                }
+            };
         }
     }
 }

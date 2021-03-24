@@ -16,10 +16,18 @@ namespace Jeffparty.Interfaces
             set;
         }
 
+        public int? Wager
+        {
+            get; 
+            set;
+        }
+
         public Guid Guid
         {
             get;set;
         }
+
+        public bool IsBuzzed { get; set; }
 
         public ContestantViewModel()
         {

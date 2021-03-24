@@ -10,13 +10,16 @@ namespace Jeffparty.Interfaces
         Task OnConnected();
         Task NotifyPlayerJoined(ContestantViewModel joiner);
         Task FindOrCreatePlayerData(Guid joiner, string playerName);
+        Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz);
+        Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager);
     }
 
     public interface IMessageHub
     {
-        Task<int> PropagateGameState(GameState state);
+        Task<bool> PropagateGameState(GameState state);
         Task<bool> NotifyPlayerJoined(Guid joiner, string playerName);
         Task<bool> FoundJoiningPlayer(ContestantViewModel contestant);
-        Task<bool> BuzzIn();
+        Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz);
+        Task<bool> SubmitWager(Guid settingsGuid, int playerViewWager);
     }
 }

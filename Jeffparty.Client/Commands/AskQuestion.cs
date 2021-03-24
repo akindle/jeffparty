@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Jeffparty.Client.Commands
 {
@@ -13,7 +14,7 @@ namespace Jeffparty.Client.Commands
 
         public override bool CanExecute(object? parameter)
         {
-            return !game.QuestionTimer.IsEnabled;
+            return !game.QuestionTimer.IsEnabled && game.PlayerWithDailyDouble == Guid.Empty;
         }
 
         public override async void Execute(object? parameter)
@@ -21,12 +22,22 @@ namespace Jeffparty.Client.Commands
             if (parameter is QuestionViewModel question)
             {
                 question.IsAsked = true;
-                game.CurrentQuestion = question.QuestionText;
-            }
+                game.CurrentQuestion = question;
 
-            game.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
-            game.LastQuestionFiring = DateTime.Now;
-            game.QuestionTimer.Start();
+                if (question.IsDailyDouble)
+                {
+                    game.PlayerWithDailyDouble = game.LastCorrectPlayer?.Guid ?? Guid.Empty;
+                    game.BuzzedInPlayer =
+                        game.ContestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == game.PlayerWithDailyDouble);
+                }
+                else
+                {
+                    game.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
+                    game.LastQuestionFiring = DateTime.Now;
+                    game.QuestionTimer.Start();
+                }
+            }
+            
             await game.PropagateGameState().ConfigureAwait(true);
             NotifyExecutabilityChanged();
         }

@@ -57,8 +57,9 @@ namespace Jeffparty.Client
         {
             IsHost = settings.IsHost;
             PersistedSettings = settings;
-            PlayerViewModel = new PlayerViewModel(settings);
-            ContestantsViewModel = new ContestantsViewModel();
+
+            ContestantsViewModel = new ContestantsViewModel {ShowWagerColumn = IsHost};
+            PlayerViewModel = new PlayerViewModel(settings, dhub, ContestantsViewModel);
             HostViewModel = new HostViewModel(dhub, ContestantsViewModel);
         }
     }

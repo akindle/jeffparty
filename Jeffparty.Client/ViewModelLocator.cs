@@ -25,7 +25,7 @@ namespace Jeffparty.Client
         {
             get
             {
-                return playerView ??= new PlayerViewModel(new PersistedSettings(Guid.Empty, "New Player", "http://localhost/"));
+                return playerView ??= new PlayerViewModel(new PersistedSettings(Guid.Empty, "New Player", "http://localhost/"), new MockHub(), new ContestantsViewModel());
             }
         }
 
@@ -65,6 +65,11 @@ namespace Jeffparty.Client
                 return Task.FromResult(5);
             }
 
+            Task<bool> IMessageHub.PropagateGameState(GameState state)
+            {
+                throw new NotImplementedException();
+            }
+
             public Task<bool> NotifyPlayerJoined(Guid joiner, string playerName)
             {
                 return Task.FromResult(false);
@@ -73,6 +78,16 @@ namespace Jeffparty.Client
             public Task<bool> FoundJoiningPlayer(ContestantViewModel contestant)
             {
                 return Task.FromResult(false);
+            }
+
+            public Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<bool> SubmitWager(Guid settingsGuid, int playerViewWager)
+            {
+                throw new NotImplementedException();
             }
 
             public Task<bool> BuzzIn()

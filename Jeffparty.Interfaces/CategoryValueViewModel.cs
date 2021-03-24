@@ -8,13 +8,13 @@
             set;
         }
 
-        public uint Value
+        public int Value
         {
             get;
             set;
         }
 
-        public CategoryValueViewModel(uint value)
+        public CategoryValueViewModel(int value)
         {
             Value = value;
             Available = true;

@@ -8,15 +8,10 @@ namespace Jeffparty.Server.Hubs
     public class ChatHub : Hub<IMessageSpoke>, IMessageHub
     {
 
-        public async Task<int> PropagateGameState(GameState state)
+        public async Task<bool> PropagateGameState(GameState state)
         {
             await Clients.Others.UpdateGameState(state);
-            return 5;
-        }
-
-        public Task<bool> BuzzIn()
-        {
-            return Task.FromResult(false);
+            return true;
         }
 
         public async Task<bool> NotifyPlayerJoined(Guid joiner, string playerName)
@@ -28,6 +23,18 @@ namespace Jeffparty.Server.Hubs
         public async Task<bool> FoundJoiningPlayer(ContestantViewModel contestant)
         {
             await Clients.All.NotifyPlayerJoined(contestant);
+            return true;
+        }
+
+        public async Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz)
+        {
+            await Clients.All.NotifyPlayerBuzzed(buzzingPlayer, timerSecondsAtBuzz);
+            return true;
+        }
+
+        public async Task<bool> SubmitWager(Guid settingsGuid, int playerViewWager)
+        {
+            await Clients.All.NotifyPlayerWagered(settingsGuid, playerViewWager);
             return true;
         }
 

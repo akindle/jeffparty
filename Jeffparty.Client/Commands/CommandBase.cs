@@ -12,14 +12,8 @@ namespace Jeffparty.Client.Commands
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public virtual bool CanExecute(object? parameter)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract bool CanExecute(object? parameter);
 
-        public virtual void Execute(object? parameter)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Execute(object? parameter);
     }
 }

@@ -71,13 +71,30 @@ namespace Jeffparty.Client
 
         public async Task OnConnected()
         {
-            await hub.NotifyPlayerJoined(settings.Guid, settings.PlayerName);
+            if (viewModel.IsPlayer)
+            {
+                await hub.NotifyPlayerJoined(settings.Guid, settings.PlayerName);
+            }
+
             viewModel.ConnectionId = "Connected";
         }
 
         public async Task NotifyPlayerJoined(ContestantViewModel joiner)
         {
-            await Dispatcher.InvokeAsync(() => viewModel.ContestantsViewModel.Contestants.Add(joiner));
+            await Dispatcher.InvokeAsync(() =>
+            {
+                var possibleReconnect =
+                    viewModel.ContestantsViewModel.Contestants.FirstOrDefault(contestant =>
+                        contestant.Guid == joiner.Guid);
+                if (possibleReconnect != null)
+                {
+                    possibleReconnect.PlayerName = joiner.PlayerName;
+                }
+                else
+                {
+                    viewModel.ContestantsViewModel.Contestants.Add(joiner);
+                }
+            });
         }
 
         public async Task FindOrCreatePlayerData(Guid joiner, string playerName)
@@ -98,6 +115,44 @@ namespace Jeffparty.Client
             }
 
             await hub.FoundJoiningPlayer(reconnector);
+            await viewModel.HostViewModel.GameManager.PropagateGameState();
+        }
+
+        public async Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz)
+        {
+            var p =
+                viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
+                    contestant => contestant.Guid == buzzingPlayer);
+            if (p != null)
+            {
+                await Dispatcher.InvokeAsync(async () =>
+                {
+                    p.IsBuzzed = true;
+                    if (viewModel.IsHost)
+                    {
+                        await viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz);
+                    }
+                });
+            }
+        }
+
+        public async Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager)
+        {
+            if (!viewModel.IsHost)
+            {
+                return;
+            }
+            
+            var p =
+                viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
+                    contestant => contestant.Guid == settingsGuid);
+            if (p != null)
+            {
+                await Dispatcher.InvokeAsync(async () =>
+                {
+                    await viewModel.HostViewModel.GameManager.PlayerWagered(p, playerViewWager);
+                });
+            }
         }
     }
 }

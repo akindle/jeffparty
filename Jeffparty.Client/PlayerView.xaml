@@ -8,8 +8,29 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{x:Static local:ViewModelLocator.PlayerView}"
     mc:Ignorable="d">
+    <UserControl.Style>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsBuzzedIn}" Value="True">
+                    <Setter Property="Background" Value="Chartreuse"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <StackPanel>
-        <TextBlock Text="{Binding Player.PlayerName}" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Player Name:" />
+            <TextBox Grid.Column="1" Text="{Binding Settings.PlayerName, Delay=250, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+            <TextBlock Grid.Column="2" Text="Server:" />
+            <TextBox Grid.Column="3" Text="{Binding Settings.HostUrl, Delay=250, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+        </Grid>
         <StackPanel Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding GameboardCategories}">
                 <ItemsControl.ItemsPanel>
@@ -73,10 +94,13 @@
                     Text="{Binding ActiveQuestion}"
                     TextWrapping="Wrap" />
                 <TextBlock>
-                    <Run Text="Time left to answer: " />
+                    <Run Text="Time left to buzz in: " />
                     <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
                 </TextBlock>
-                <Button Click="Button_Click" Content="Buzzer" />
+                <Button
+                    Command="{Binding BuzzInCommand}"
+                    CommandParameter="{Binding}"
+                    Content="Buzzer" />
             </StackPanel>
             <Grid Visibility="{Binding IsWagerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
@@ -109,13 +133,16 @@
                 <TextBox
                     Grid.Row="2"
                     Grid.Column="1"
+                    IsEnabled="{Binding ElementName=SubmitWagerButton, Path=IsEnabled}"
                     FontSize="24"
-                    Text="Wager goes here" />
+                    Text="{Binding Wager}" />
                 <Button
+                    x:Name="SubmitWagerButton"
                     Grid.Row="3"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
-                    Content="Submit wager" />
+                    Content="Submit wager"
+                    Command="{Binding SubmitWager}"/>
                 <TextBlock
                     Grid.Row="4"
                     Grid.Column="0"

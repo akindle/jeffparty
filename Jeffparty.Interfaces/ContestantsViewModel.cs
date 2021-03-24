@@ -5,20 +5,30 @@ namespace Jeffparty.Interfaces
 {
     public sealed class ContestantsViewModel : Notifier
     {
+        private bool _showWagerColumn;
+
         public ObservableCollection<ContestantViewModel> Contestants
         {
             get;
             set;
         }
 
+        public int WagerColumnWidth => ShowWagerColumn ? 150 : 0;
+
+        public bool ShowWagerColumn
+        {
+            get => _showWagerColumn;
+            set
+            {
+                _showWagerColumn = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(WagerColumnWidth));
+            }
+        }
+
         public ContestantsViewModel()
         {
-            Contestants = new ObservableCollection<ContestantViewModel>
-            {
-                new ContestantViewModel { PlayerName = "Player 1", Score = -12000 },
-                new ContestantViewModel { PlayerName = "Player 2", Score = 4600 },
-                new ContestantViewModel { PlayerName = "Player 3", Score = 18000 }
-            };
+            Contestants = new ObservableCollection<ContestantViewModel>();
         }
     }
 }
