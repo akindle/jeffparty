@@ -32,6 +32,12 @@ namespace Jeffparty.Client
 
         public uint Wager { get; set; }
 
+        public bool IsQuestionVisible
+        {
+            get;
+            set;
+        }
+
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
         {
@@ -58,7 +64,10 @@ namespace Jeffparty.Client
         {
             ActiveQuestion = newState.CurrentQuestion;
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
+            
+
             IsWagerVisible = newState.PlayerWithDailyDouble == Settings.Guid || newState.IsFinalJeopardy;
+            IsQuestionVisible = newState.ShouldShowQuestion;
             IsFinalJeopardy = newState.IsFinalJeopardy;
             FinalJeopardyCategory = newState.FinalJeopardyCategory ?? string.Empty;
             var newCategories = new List<PlayerCategoryViewModel>();

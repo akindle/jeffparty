@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
 
@@ -12,6 +13,7 @@ namespace Jeffparty.Client
     public class GameManager : Notifier
     {
         private ContestantViewModel? _lastCorrectPlayer;
+        private ILogger<GameManager> _logger;
         public string FinalJeopardyCategory { get; set; }
 
         public bool IsFinalJeopardy { get; set; }
@@ -45,31 +47,36 @@ namespace Jeffparty.Client
         public PauseForAnswer PauseForAnswerCommand { get; }
 
         public AskQuestion AskQuestionCommand { get; }
-        
+
         public AcceptOrRejectAnswer AnswerCommand { get; }
-        
+
         public ContestantViewModel? BuzzedInPlayer { get; set; }
 
         public ContestantViewModel? LastCorrectPlayer
         {
-            get
-            {
-                return _lastCorrectPlayer ??= ContestantsViewModel.Contestants.FirstOrDefault();
-            }
+            get { return _lastCorrectPlayer ??= ContestantsViewModel.Contestants.FirstOrDefault(); }
             set => _lastCorrectPlayer = value;
         }
 
 
         public GameState GameState => SnapshotGameState();
 
-        public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants)
+        public ReplaceCategory ReplaceCategory
         {
+            get;
+        }
+
+        public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants, ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<GameManager>();
             ContestantsViewModel = contestants;
             Server = server;
             HostViewModel = hostViewModel;
             PauseForAnswerCommand = new PauseForAnswer(this);
             AskQuestionCommand = new AskQuestion(this);
-            AnswerCommand = new AcceptOrRejectAnswer(this);
+            AnswerCommand = new AcceptOrRejectAnswer(this, loggerFactory);
+            ReplaceCategory = new ReplaceCategory(this);
+            ListenForAnswersCommand = new ListenForAnswers(this);
             AnswerTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(0.1)
@@ -85,7 +92,7 @@ namespace Jeffparty.Client
 
             FinalJeopardyCategory = string.Empty;
             CurrentQuestion = new QuestionViewModel();
-            
+
 
             var (category, question) = GenerateDailyDouble();
 
@@ -94,6 +101,7 @@ namespace Jeffparty.Client
 
         public GameState SnapshotGameState()
         {
+            _logger.Trace();
             return new GameState
             {
                 CurrentQuestion = CurrentQuestion.QuestionText,
@@ -111,16 +119,19 @@ namespace Jeffparty.Client
                 IsDoubleJeopardy = IsDoubleJeopardy,
                 IsFinalJeopardy = IsFinalJeopardy,
                 FinalJeopardyCategory = FinalJeopardyCategory,
-                BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty
+                BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty,
+                ShouldShowQuestion =  ShouldShowQuestion
             };
         }
 
         private async void AnswerTimer_Tick(object? sender, EventArgs e)
         {
+            _logger.Trace();
             AnswerTimeRemaining = AnswerTimeRemaining.Subtract(DateTime.Now.Subtract(LastAnswerFiring));
             LastAnswerFiring = DateTime.Now;
             if (AnswerTimeRemaining.TotalSeconds <= 0)
             {
+                _logger.LogDebug("Answer timer expired");
                 await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
                 {
                     if (BuzzedInPlayer != null) BuzzedInPlayer.Score -= CurrentQuestion.PointValue;
@@ -133,18 +144,20 @@ namespace Jeffparty.Client
                 PauseForAnswerCommand.NotifyExecutabilityChanged();
             }
 
-            await Dispatcher.CurrentDispatcher.InvokeAsync(()=>
-            HostViewModel.AnswerTimeRemaining = AnswerTimeRemaining);
+            await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
+                HostViewModel.AnswerTimeRemaining = AnswerTimeRemaining);
             await PropagateGameState();
         }
 
         private async void QuestionTimer_Tick(object? sender, EventArgs e)
         {
+            _logger.Trace();
             PauseForAnswerCommand.NotifyExecutabilityChanged();
             QuestionTimeRemaining = QuestionTimeRemaining.Subtract(DateTime.Now.Subtract(LastQuestionFiring));
             LastQuestionFiring = DateTime.Now;
             if (QuestionTimeRemaining.TotalSeconds <= 0)
             {
+                _logger.LogDebug("Question timer expired");
                 QuestionTimer.Stop();
                 CanBuzzIn = false;
                 QuestionTimeRemaining = default;
@@ -162,11 +175,13 @@ namespace Jeffparty.Client
 
         public async Task PropagateGameState()
         {
+            _logger.Trace();
             await Server.PropagateGameState(GameState);
         }
 
         public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
         {
+            _logger.Trace();
             CanBuzzIn = false;
             QuestionTimer.Stop();
             AnswerTimeRemaining = TimeSpan.FromSeconds(5);
@@ -184,20 +199,22 @@ namespace Jeffparty.Client
             var dailyDoubleCategory = rand.Next(0, 6);
             var dailyDoubleQuestion = rand.NextDouble() switch
             {
-                var val when val <0.15 => 1,
-                var val when val <(0.15 + 0.2) => 2,
-                var val when val <(0.15 + 0.2 + .35) => 3,
+                var val when val < 0.15 => 1,
+                var val when val < (0.15 + 0.2) => 2,
+                var val when val < (0.15 + 0.2 + .35) => 3,
                 _ => 4
             };
 
             return (dailyDoubleCategory, dailyDoubleQuestion);
         }
-        
+
         public async Task AdvanceState()
         {
+            _logger.Trace();
             BuzzedInPlayer = null;
             QuestionTimer.Stop();
             AnswerTimer.Stop();
+            ShouldShowQuestion = false;
             QuestionTimeRemaining = default;
             AnswerTimeRemaining = default;
             await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
@@ -206,6 +223,7 @@ namespace Jeffparty.Client
                 {
                     if (!IsDoubleJeopardy)
                     {
+                        _logger.LogDebug("Advancing to double jeopardy");
                         IsDoubleJeopardy = true;
                         HostViewModel.Categories = new List<CategoryViewModel>
                             {
@@ -253,24 +271,72 @@ namespace Jeffparty.Client
                             }
                         }
                     }
-                    else
+                    else if(!IsFinalJeopardy && IsDoubleJeopardy)
                     {
+                        _logger.LogDebug("Advancing to final jeopardy");
                         IsFinalJeopardy = true;
                         // TODO
                     }
+                    else
+                    {
+                        _logger.LogDebug("Advancing to new game");
+                        HostViewModel.Categories = new List<CategoryViewModel>
+                            {
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException(),
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException(),
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException(),
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException(),
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException(),
+                                CategoryViewModel.CreateRandom(
+                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                throw new InvalidOperationException()
+                            }.Select(cvm => new CategoryViewModel
+                            {
+                                CategoryQuestions = cvm.CategoryQuestions.Select(q => new QuestionViewModel
+                                    {
+                                        AnswerText = q.AnswerText,
+                                        IsAsked = false,
+                                        IsDailyDouble = false,
+                                        PointValue = q.PointValue * 2,
+                                        QuestionText = q.QuestionText
+                                    })
+                                    .ToList()
+                            })
+                            .ToList();
+                        
+                        var (category, question) = GenerateDailyDouble();
+
+                        HostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
+                    }
                 }
             });
-            
+
             AskQuestionCommand.NotifyExecutabilityChanged();
             PauseForAnswerCommand.NotifyExecutabilityChanged();
             AnswerCommand.NotifyExecutabilityChanged();
+            ListenForAnswersCommand.NotifyExecutabilityChanged();
             await PropagateGameState();
         }
 
+        public bool ShouldShowQuestion { get; set; }
+        public ListenForAnswers ListenForAnswersCommand { get; set; }
+
         public async Task PlayerWagered(ContestantViewModel contestantViewModel, int playerViewWager)
         {
+            _logger.Trace();
             contestantViewModel.Wager = playerViewWager;
-            
+
+            ShouldShowQuestion = true; // TODO finalj
             AskQuestionCommand.NotifyExecutabilityChanged();
             PauseForAnswerCommand.NotifyExecutabilityChanged();
             AnswerCommand.NotifyExecutabilityChanged();

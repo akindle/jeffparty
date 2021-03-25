@@ -7,6 +7,10 @@ using System.Linq;
 using System.Xml.Serialization;
 using Jeffparty.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
+using Microsoft.Extensions.Logging.EventLog;
+using NLog.Extensions.Logging;
 using SignalR.Strong;
 
 namespace Jeffparty.Client
@@ -16,8 +20,8 @@ namespace Jeffparty.Client
     /// </summary>
     public partial class MainWindow : Window, IMessageSpoke
     {
-        private readonly HubConnection connection;
-        private readonly IMessageHub hub;
+        private readonly ILogger<MainWindow> _logger;
+        private readonly ServerWrapper hub;
         private readonly MainWindowViewModel viewModel;
         private PersistedSettings settings;
 
@@ -26,12 +30,18 @@ namespace Jeffparty.Client
             try
             {
                 var settingsPath = $"{Directory.GetCurrentDirectory()}\\settings.xml";
+                _logger.LogInformation($"Attempting to load settings from {settingsPath}");
                 var xml = new XmlSerializer(typeof(PersistedSettings));
                 using var stream = File.OpenRead(settingsPath);
-                return ((PersistedSettings)xml.Deserialize(stream))!;
+                var newSettings = ((PersistedSettings)xml.Deserialize(stream))!;
+                newSettings.ConfigureEventing();
+                _logger.LogInformation("Loaded settings");
+                return newSettings;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.LogWarning($"Settings load failed: {e}");
+                _logger.LogInformation("Generating default settings");
                 var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player", "https://jeffparty.alexkindle.com/ChatHub");
                 newSettings.SaveSettings();
                 return newSettings;
@@ -40,56 +50,77 @@ namespace Jeffparty.Client
 
         public MainWindow()
         {
-            try
+            using var loggerFactory = LoggerFactory.Create(builder =>
             {
-                settings = TryLoadSettings();
-                connection = new HubConnectionBuilder()
-                    .WithUrl(settings.HostUrl)
-                    .WithAutomaticReconnect()
-                    .Build();
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("Jeffparty", LogLevel.Trace)
+                    .AddProvider(new DebugLoggerProvider())
+                    .AddProvider(new EventLogLoggerProvider(new EventLogSettings
+                    {
+                        Filter = (_, level) => level switch
+                        {
+                            LogLevel.Trace => false,
+                            LogLevel.Debug => false,
+                            LogLevel.Information => true,
+                            LogLevel.Warning => true,
+                            LogLevel.Error => true,
+                            LogLevel.Critical => true,
+                            LogLevel.None => true,
+                            _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+                        }
+                    }))
+                    .AddProvider(new NLogLoggerProvider());
+            });
+            _logger = loggerFactory.CreateLogger<MainWindow>();
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+        
+            settings = TryLoadSettings();
+            hub = new ServerWrapper(this, loggerFactory);
+            viewModel = new MainWindowViewModel(hub, settings, loggerFactory);
+            DataContext = viewModel;
+            InitializeComponent();
 
-                connection.Closed += async error =>
-                {
-                    await Task.Delay(new Random().Next(0, 5) * 1000);
-                    await connection.StartAsync();
-                };
+            Loaded += MainWindow_Loaded;
+        }
 
-                connection.RegisterSpoke<IMessageSpoke>(this);
-                hub = connection.AsDynamicHub<IMessageHub>();
-                viewModel = new MainWindowViewModel(hub, settings);
-                DataContext = viewModel;
-                InitializeComponent();
-            }
-            catch (Exception e)
-            {
-                Debug.Fail(e.ToString());
-            }
-
-            this.Loaded += MainWindow_Loaded;
+        private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = (Exception) e.ExceptionObject;
+            _logger.LogCritical("MyHandler caught : " + ex);
+            _logger.LogCritical($"Runtime terminating: {e.IsTerminating}");
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            await connection.StartAsync();
+            await hub.ChangeHostUrl(settings.HostUrl);
         }
 
         public async Task UpdateGameState(GameState state)
         {
+            _logger.Trace();
             await Dispatcher.InvokeAsync(() => viewModel.PlayerViewModel.Update(state));
         }
 
         public async Task OnConnected()
         {
+            _logger.Trace();
             if (viewModel.IsPlayer)
             {
                 await hub.NotifyPlayerJoined(settings.Guid, settings.PlayerName);
             }
+            else
+            {
+                // discover players
+            }
 
-            viewModel.ConnectionId = "Connected";
+            viewModel.ConnectionState = "Connected";
         }
 
         public async Task NotifyPlayerJoined(ContestantViewModel joiner)
         {
+            _logger.Trace();
             await Dispatcher.InvokeAsync(() =>
             {
                 var possibleReconnect =
@@ -108,6 +139,7 @@ namespace Jeffparty.Client
 
         public async Task FindOrCreatePlayerData(Guid joiner, string playerName)
         {
+            _logger.Trace();
             if (!viewModel.IsHost)
             {
                 return;
@@ -117,18 +149,24 @@ namespace Jeffparty.Client
             if (reconnector == null)
             {
                 reconnector = new ContestantViewModel { PlayerName = playerName, Guid = joiner, Score = 0 };
+                viewModel.ContestantsViewModel.Contestants.Add(reconnector);
             }
             else
             {
                 reconnector.PlayerName = playerName;
             }
 
-            await hub.FoundJoiningPlayer(reconnector);
+            foreach (var player in viewModel.ContestantsViewModel.Contestants)
+            {
+                await hub.FoundJoiningPlayer(player);
+            }
+            
             await viewModel.HostViewModel.GameManager.PropagateGameState();
         }
 
         public async Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz)
         {
+            _logger.Trace();
             var p =
                 viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
                     contestant => contestant.Guid == buzzingPlayer);
@@ -147,6 +185,7 @@ namespace Jeffparty.Client
 
         public async Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager)
         {
+            _logger.Trace();
             if (!viewModel.IsHost)
             {
                 return;

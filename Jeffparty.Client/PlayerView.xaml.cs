@@ -12,13 +12,7 @@ namespace Jeffparty.Client
     {
         public PlayerView()
         {
-            DataContext = ViewModelLocator.PlayerView;
             InitializeComponent();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Debugger.Break();
         }
     }
 }

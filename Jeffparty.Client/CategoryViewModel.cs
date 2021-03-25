@@ -10,16 +10,14 @@ using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
 {
-    public class CategoryViewModel : Notifier, ICommand
+    public class CategoryViewModel : Notifier
     {
         private static readonly HashSet<string> UsedPaths = new HashSet<string>();
-
-        public event EventHandler? CanExecuteChanged;
 
         public string CategoryHeader
         {
             get;
-            private set;
+            set;
         } = string.Empty;
 
         public List<QuestionViewModel> CategoryQuestions
@@ -28,20 +26,8 @@ namespace Jeffparty.Client
             set;
         } = new();
 
-        private string _rootDirectory = Directory.GetCurrentDirectory();
-
-        public bool CanExecute(object? parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object? parameter)
-        {
-            var tempReplacement = CreateRandom(_rootDirectory);
-            CategoryHeader = tempReplacement?.CategoryHeader ?? "No Category Loaded";
-            CategoryQuestions = tempReplacement?.CategoryQuestions ?? new List<QuestionViewModel>();
-        }
-
+        public string RootDirectory = Directory.GetCurrentDirectory();
+        
         public static CategoryViewModel GenerateNonsense()
         {
             var result = new CategoryViewModel();
@@ -71,7 +57,7 @@ namespace Jeffparty.Client
 
                 if (result != null)
                 {
-                    result._rootDirectory = rootDirectory;
+                    result.RootDirectory = rootDirectory;
                 }
 
                 return result;

@@ -18,6 +18,9 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
+    <UserControl.InputBindings>
+        <KeyBinding Key="B" Command="{Binding BuzzInCommand}" />
+    </UserControl.InputBindings>
     <StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -29,7 +32,7 @@
             <TextBlock Grid.Column="0" Text="Player Name:" />
             <TextBox Grid.Column="1" Text="{Binding Settings.PlayerName, Delay=250, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             <TextBlock Grid.Column="2" Text="Server:" />
-            <TextBox Grid.Column="3" Text="{Binding Settings.HostUrl, Delay=250, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+            <TextBox Grid.Column="3" Text="{Binding Settings.HostUrl, Delay=1000, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
         </Grid>
         <StackPanel Orientation="Horizontal">
             <ItemsControl ItemsSource="{Binding GameboardCategories}">
@@ -92,6 +95,7 @@
                     MinHeight="100"
                     HorizontalAlignment="Left"
                     Text="{Binding ActiveQuestion}"
+                    Visibility="{Binding IsQuestionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     TextWrapping="Wrap" />
                 <TextBlock>
                     <Run Text="Time left to buzz in: " />

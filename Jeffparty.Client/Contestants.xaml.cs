@@ -9,7 +9,6 @@ namespace Jeffparty.Client
     {
         public Contestants()
         {
-            DataContext = ViewModelLocator.ContestantsView;
             InitializeComponent();
         }
     }

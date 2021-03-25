@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Jeffparty.Interfaces;
 
@@ -19,17 +21,47 @@ namespace Jeffparty.Client
         } = string.Empty;
 
         public bool IsHost{get;set;}
+        
+        [XmlIgnore]
+        public MainWindowViewModel? MainWindow { get; set; }
 
         public PersistedSettings(Guid guid, string playerName, string hostUrl)
         {
             Guid = guid;
             PlayerName = playerName;
             HostUrl = hostUrl;
-            PropertyChanged += (_, __) => SaveSettings();
             IsHost = false;
+            ConfigureEventing();
         }
 
-        private PersistedSettings(){}
+        public void ConfigureEventing()
+        {
+            PropertyChanged += OnPropertyChangedEventHandler;
+        }
+
+        private async void OnPropertyChangedEventHandler(object? _, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(PlayerName) || e.PropertyName == nameof(Guid))
+            {
+                if (MainWindow != null)
+                {
+                    await MainWindow.Server.NotifyPlayerJoined(Guid, PlayerName);
+                }
+            }
+            else if (e.PropertyName == nameof(HostUrl) && MainWindow?.Server is ServerWrapper hub)
+            {
+                await hub.ChangeHostUrl(HostUrl);
+            }
+
+            if (e.PropertyName == nameof(PlayerName) || e.PropertyName == nameof(Guid) || e.PropertyName == nameof(HostUrl))
+            {
+                SaveSettings();
+            }
+        }
+
+        private PersistedSettings()
+        {
+        }
 
         public void SaveSettings()
         {
@@ -40,7 +72,9 @@ namespace Jeffparty.Client
                 using var stream = File.OpenWrite(settingsPath);
                 xml.Serialize(stream, this);
             }
-            catch{}
+            catch 
+            {
+            }
         }
     }
 }

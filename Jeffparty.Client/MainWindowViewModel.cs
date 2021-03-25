@@ -1,10 +1,11 @@
 ﻿using Jeffparty.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Jeffparty.Client
 {
     public class MainWindowViewModel : Notifier
     {
-        public string Title => IsHost ? $"Jeffparty - Host - {ConnectionId}" : $"Jeffparty - {ConnectionId}";
+        public string Title => IsHost ? $"Jeffparty - Host - {ConnectionState}" : $"Jeffparty - {ConnectionState}";
 
         public ContestantsViewModel ContestantsViewModel
         {
@@ -38,29 +39,32 @@ namespace Jeffparty.Client
 
         public bool IsPlayer => !IsHost;
         private bool isHost;
-        private string connectionId = "Connecting";
+        private string _connectionState = "Connecting";
 
-        public string ConnectionId
+        public string ConnectionState
         {
-            get => connectionId;
+            get => _connectionState;
             set
             {
-                connectionId = value;
+                _connectionState = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Title));
             }
         }
 
+        public IMessageHub Server { get; }
         public PersistedSettings PersistedSettings{get;set;}
 
-        public MainWindowViewModel(IMessageHub dhub, PersistedSettings settings)
+        public MainWindowViewModel(IMessageHub server, PersistedSettings settings, ILoggerFactory loggerFactory)
         {
             IsHost = settings.IsHost;
+            Server = server;
             PersistedSettings = settings;
+            settings.MainWindow = this;
 
             ContestantsViewModel = new ContestantsViewModel {ShowWagerColumn = IsHost};
-            PlayerViewModel = new PlayerViewModel(settings, dhub, ContestantsViewModel);
-            HostViewModel = new HostViewModel(dhub, ContestantsViewModel);
+            PlayerViewModel = new PlayerViewModel(settings, server, ContestantsViewModel);
+            HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
         }
     }
 }

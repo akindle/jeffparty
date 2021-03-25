@@ -14,7 +14,12 @@ namespace Jeffparty.Client.Commands
 
         public override bool CanExecute(object? parameter)
         {
-            return !game.QuestionTimer.IsEnabled && game.PlayerWithDailyDouble == Guid.Empty;
+            if (parameter is QuestionViewModel question)
+            {
+                return !game.QuestionTimer.IsEnabled && game.PlayerWithDailyDouble == Guid.Empty && !question.IsAsked;
+            }
+
+            return false;
         }
 
         public override async void Execute(object? parameter)
@@ -29,17 +34,18 @@ namespace Jeffparty.Client.Commands
                     game.PlayerWithDailyDouble = game.LastCorrectPlayer?.Guid ?? Guid.Empty;
                     game.BuzzedInPlayer =
                         game.ContestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == game.PlayerWithDailyDouble);
+                    game.ShouldShowQuestion = false;
                 }
                 else
                 {
-                    game.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
-                    game.LastQuestionFiring = DateTime.Now;
-                    game.QuestionTimer.Start();
+                    game.ShouldShowQuestion = true;
                 }
             }
             
             await game.PropagateGameState().ConfigureAwait(true);
             NotifyExecutabilityChanged();
+            game.ReplaceCategory.NotifyExecutabilityChanged();
+            game.ListenForAnswersCommand.NotifyExecutabilityChanged();
         }
     }
 }

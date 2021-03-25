@@ -64,7 +64,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <Button Command="{Binding}" Content="Replace Category" />
+                            <Button Command="{Binding DataContext.GameManager.ReplaceCategory, RelativeSource={RelativeSource AncestorType=local:HostView}}" Content="Replace Category" CommandParameter="{Binding}"/>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -87,6 +87,7 @@
             <Run Text="Answer time remaining: " />
             <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
         </TextBlock>
+        <Button Command="{Binding GameManager.ListenForAnswersCommand}" Content="Begin listening for answer" />
         <Button Command="{Binding GameManager.PauseForAnswerCommand}" Content="Pause for answer" />
         <StackPanel Orientation="Horizontal">
             <Button Content="Correct" Command="{Binding GameManager.AnswerCommand}" CommandParameter="True" />

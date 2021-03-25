@@ -6,7 +6,7 @@ namespace Jeffparty.Client.Commands
     {
         private readonly PlayerViewModel _playerView;
         private readonly IMessageHub _server;
-        private bool hasWagered;
+        private bool _hasWagered;
 
         public SubmitWager(PlayerViewModel playerView, IMessageHub server)
         {
@@ -17,19 +17,20 @@ namespace Jeffparty.Client.Commands
                 if (args.PropertyName == nameof(_playerView.IsWagerVisible))
                 {
                     NotifyExecutabilityChanged();
-                    hasWagered = false;
+                    _hasWagered = false;
                 }
             };
         }
         
         public override bool CanExecute(object? parameter)
         {
-            return _playerView.IsWagerVisible && !hasWagered;
+            return _playerView.IsWagerVisible && !_hasWagered;
         }
 
         public override async void Execute(object? parameter)
         {
-            hasWagered = true;
+            _hasWagered = true;
+            _playerView.IsQuestionVisible = true;
             await _server.SubmitWager(_playerView.Settings.Guid, (int)_playerView.Wager);
             NotifyExecutabilityChanged();
         }

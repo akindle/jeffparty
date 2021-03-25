@@ -7,10 +7,10 @@
     <Application.Resources>
         <ResourceDictionary>
             <Style TargetType="{x:Type TextBlock}">
-                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontSize" Value="16" />
             </Style>
             <Style TargetType="{x:Type TextBox}">
-                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontSize" Value="16" />
             </Style>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>

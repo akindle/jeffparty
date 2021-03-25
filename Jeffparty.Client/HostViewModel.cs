@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using Jeffparty.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Jeffparty.Client
 {
@@ -17,7 +18,7 @@ namespace Jeffparty.Client
 
         public string BoardController => GameManager.LastCorrectPlayer?.PlayerName ?? "Unknown";
 
-        public HostViewModel(IMessageHub server, ContestantsViewModel contestants)
+        public HostViewModel(IMessageHub server, ContestantsViewModel contestants, ILoggerFactory loggerFactory)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace Jeffparty.Client
                 };
             }
 
-            GameManager = new GameManager(server, this, contestants);
+            GameManager = new GameManager(server, this, contestants, loggerFactory);
             GameManager.PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName == nameof(GameManager.LastCorrectPlayer))

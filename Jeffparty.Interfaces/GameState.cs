@@ -41,5 +41,6 @@ namespace Jeffparty.Interfaces
 
         public string? FinalJeopardyCategory { get; init; }
         public Guid BuzzedInPlayerId { get; init; }
+        public bool ShouldShowQuestion { get; init; }
     }
 }
