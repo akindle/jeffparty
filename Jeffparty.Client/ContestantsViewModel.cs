@@ -66,7 +66,6 @@ namespace Jeffparty.Client
             _logger.Trace();
             if (e.PropertyName == nameof(Contestant.Score))
             {
-                GradeFinalJeopardyCommand.Reset();
             }
             
             CorrectFinalJeopardy.NotifyExecutabilityChanged();
