@@ -33,16 +33,17 @@ namespace Jeffparty.Client
                 _logger.LogInformation($"Attempting to load settings from {settingsPath}");
                 var xml = new XmlSerializer(typeof(PersistedSettings));
                 using var stream = File.OpenRead(settingsPath);
-                var newSettings = ((PersistedSettings)xml.Deserialize(stream))!;
+                var newSettings = ((PersistedSettings) xml.Deserialize(stream))!;
                 newSettings.ConfigureEventing();
                 _logger.LogInformation("Loaded settings");
                 return newSettings;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogWarning($"Settings load failed: {e}");
                 _logger.LogInformation("Generating default settings");
-                var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player", "https://jeffparty.alexkindle.com/ChatHub");
+                var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player",
+                    "https://jeffparty.alexkindle.com/ChatHub");
                 newSettings.SaveSettings();
                 return newSettings;
             }
@@ -75,7 +76,7 @@ namespace Jeffparty.Client
             });
             _logger = loggerFactory.CreateLogger<MainWindow>();
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-        
+
             settings = TryLoadSettings();
             hub = new ServerWrapper(this, loggerFactory);
             viewModel = new MainWindowViewModel(hub, settings, loggerFactory);
@@ -145,10 +146,11 @@ namespace Jeffparty.Client
                 return;
             }
 
-            var reconnector = viewModel.ContestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == joiner);
+            var reconnector =
+                viewModel.ContestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == joiner);
             if (reconnector == null)
             {
-                reconnector = new ContestantViewModel { PlayerName = playerName, Guid = joiner, Score = 0 };
+                reconnector = new ContestantViewModel {PlayerName = playerName, Guid = joiner, Score = 0};
                 viewModel.ContestantsViewModel.Contestants.Add(reconnector);
             }
             else
@@ -160,7 +162,7 @@ namespace Jeffparty.Client
             {
                 await hub.FoundJoiningPlayer(player);
             }
-            
+
             await viewModel.HostViewModel.GameManager.PropagateGameState();
         }
 
@@ -190,7 +192,7 @@ namespace Jeffparty.Client
             {
                 return;
             }
-            
+
             var p =
                 viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
                     contestant => contestant.Guid == settingsGuid);

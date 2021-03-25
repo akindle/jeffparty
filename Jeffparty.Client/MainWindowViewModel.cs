@@ -7,23 +7,11 @@ namespace Jeffparty.Client
     {
         public string Title => IsHost ? $"Jeffparty - Host - {ConnectionState}" : $"Jeffparty - {ConnectionState}";
 
-        public ContestantsViewModel ContestantsViewModel
-        {
-            get;
-            set;
-        }
+        public ContestantsViewModel ContestantsViewModel { get; set; }
 
-        public HostViewModel HostViewModel
-        {
-            get;
-            set;
-        }
+        public HostViewModel HostViewModel { get; set; }
 
-        public PlayerViewModel PlayerViewModel
-        {
-            get;
-            set;
-        }
+        public PlayerViewModel PlayerViewModel { get; set; }
 
         public bool IsHost
         {
@@ -53,7 +41,7 @@ namespace Jeffparty.Client
         }
 
         public IMessageHub Server { get; }
-        public PersistedSettings PersistedSettings{get;set;}
+        public PersistedSettings PersistedSettings { get; set; }
 
         public MainWindowViewModel(IMessageHub server, PersistedSettings settings, ILoggerFactory loggerFactory)
         {

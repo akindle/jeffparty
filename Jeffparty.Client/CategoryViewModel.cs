@@ -68,7 +68,7 @@ namespace Jeffparty.Client
             }
         }
 
-        private static string CleanUpString(string input)
+        public static string CleanUpString(string input)
         {
             return Regex.Replace(HttpUtility.HtmlDecode(input), "<[^>]*>", "");
         }

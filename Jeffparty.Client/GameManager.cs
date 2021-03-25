@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Markup;
@@ -15,6 +16,8 @@ namespace Jeffparty.Client
         private ContestantViewModel? _lastCorrectPlayer;
         private ILogger<GameManager> _logger;
         public string FinalJeopardyCategory { get; set; }
+        public string FinalJeopardyQuestion { get; set; }
+        public string FinalJeopardyAnswer { get; set; }
 
         public bool IsFinalJeopardy { get; set; }
 
@@ -61,12 +64,10 @@ namespace Jeffparty.Client
 
         public GameState GameState => SnapshotGameState();
 
-        public ReplaceCategory ReplaceCategory
-        {
-            get;
-        }
+        public ReplaceCategory ReplaceCategory { get; }
 
-        public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants, ILoggerFactory loggerFactory)
+        public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants,
+            ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<GameManager>();
             ContestantsViewModel = contestants;
@@ -90,7 +91,6 @@ namespace Jeffparty.Client
             LastQuestionFiring = DateTime.Now;
             LastAnswerFiring = DateTime.Now;
 
-            FinalJeopardyCategory = string.Empty;
             CurrentQuestion = new QuestionViewModel();
 
 
@@ -104,7 +104,7 @@ namespace Jeffparty.Client
             _logger.Trace();
             return new GameState
             {
-                CurrentQuestion = CurrentQuestion.QuestionText,
+                CurrentQuestion = IsFinalJeopardy ? FinalJeopardyQuestion : CurrentQuestion.QuestionText,
                 Categories = HostViewModel.Categories.Select(cat => new Category
                 {
                     CategoryTitle = cat.CategoryHeader,
@@ -120,7 +120,7 @@ namespace Jeffparty.Client
                 IsFinalJeopardy = IsFinalJeopardy,
                 FinalJeopardyCategory = FinalJeopardyCategory,
                 BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty,
-                ShouldShowQuestion =  ShouldShowQuestion
+                ShouldShowQuestion = ShouldShowQuestion
             };
         }
 
@@ -271,10 +271,25 @@ namespace Jeffparty.Client
                             }
                         }
                     }
-                    else if(!IsFinalJeopardy && IsDoubleJeopardy)
+                    else if (!IsFinalJeopardy && IsDoubleJeopardy)
                     {
                         _logger.LogDebug("Advancing to final jeopardy");
                         IsFinalJeopardy = true;
+                        ShouldShowQuestion = false;
+                        var finaljs = Directory
+                            .EnumerateFiles(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories")
+                            .Where(fileName => fileName.Contains("finalj")).ToList();
+                        var random = new Random();
+                        var finalj = finaljs[random.Next(finaljs.Count)];
+                        var fj = File.ReadAllLines(finalj);
+                        FinalJeopardyCategory = CategoryViewModel.CleanUpString(fj[0]);
+                        FinalJeopardyQuestion = CategoryViewModel.CleanUpString(fj[1]);
+                        FinalJeopardyAnswer = CategoryViewModel.CleanUpString(fj[2]);
+                        CurrentQuestion = new QuestionViewModel
+                        {
+                            AnswerText = FinalJeopardyAnswer, IsAsked = false, IsDailyDouble = false, PointValue = 0,
+                            QuestionText = FinalJeopardyQuestion
+                        };
                         // TODO
                     }
                     else
@@ -313,7 +328,7 @@ namespace Jeffparty.Client
                                     .ToList()
                             })
                             .ToList();
-                        
+
                         var (category, question) = GenerateDailyDouble();
 
                         HostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
@@ -336,7 +351,16 @@ namespace Jeffparty.Client
             _logger.Trace();
             contestantViewModel.Wager = playerViewWager;
 
-            ShouldShowQuestion = true; // TODO finalj
+            if (IsFinalJeopardy)
+            {
+                ShouldShowQuestion = ContestantsViewModel.Contestants.Where(contestant => contestant.Score > 0)
+                    .All(contestant => contestant.Wager != null);
+            }
+            else
+            {
+                ShouldShowQuestion = true;
+            }
+
             AskQuestionCommand.NotifyExecutabilityChanged();
             PauseForAnswerCommand.NotifyExecutabilityChanged();
             AnswerCommand.NotifyExecutabilityChanged();
