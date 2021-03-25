@@ -80,12 +80,24 @@
             <Run Text="{Binding BoardController, Mode=OneWay}"/>
         </TextBlock>
         <TextBlock>
+            <Run Text="Question:"/>
+            <Run Text="{Binding GameManager.CurrentQuestion.QuestionText}" />
+        </TextBlock>
+        <TextBlock>
+            <Run Text="Answer:"/>
+            <Run Text="{Binding GameManager.CurrentQuestion.AnswerText}" />
+        </TextBlock>
+        <TextBlock>
             <Run Text="Question time remaining:" />
             <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
         </TextBlock>
         <TextBlock>
             <Run Text="Answer time remaining: " />
             <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+        </TextBlock>
+        <TextBlock>
+            <Run Text="Buzzed in player: "/>
+            <Run Text="{Binding GameManager.BuzzedInPlayer.PlayerName, FallbackValue='None'}" />
         </TextBlock>
         <Button Command="{Binding GameManager.ListenForAnswersCommand}" Content="Begin listening for answer" />
         <Button Command="{Binding GameManager.PauseForAnswerCommand}" Content="Pause for answer" />

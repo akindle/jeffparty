@@ -1,12 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Windows.Controls;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
 {
+    public class WagerValidator : ValidationRule
+    {
+        private readonly PlayerViewModel _player;
+
+        public WagerValidator(PlayerViewModel player)
+        {
+            _player = player;
+        }
+        
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            if (value is int i || (value is string str && int.TryParse(str, out i)))
+            {
+                if (i < 0)
+                {
+                    return new ValidationResult(false, "Wager is below 0");
+                }
+                if (_player.IsDoubleJeopardy)
+                {
+                    if (i < Math.Max(2000, _player.Self?.Score ?? 0))
+                    {
+                        return ValidationResult.ValidResult;
+                    }
+
+                    return new ValidationResult(false, "Wager too high");
+                }
+
+                if (_player.IsFinalJeopardy)
+                {
+                    if (i < Math.Max(0, _player.Self?.Score ?? 0))
+                    {
+                        return ValidationResult.ValidResult;
+                    }
+
+                    return new ValidationResult(false, "Wager too high");
+                }
+
+                if (i < Math.Max(1000, _player.Self?.Score ?? 0))
+                {
+                    return ValidationResult.ValidResult;
+                }
+
+                return new ValidationResult(false, "Wager too high");
+            }
+
+            return new ValidationResult(false, "Not a number");
+        }
+    }
+    
     public class PlayerViewModel : Notifier
     {
         private readonly ContestantsViewModel _contestantsViewModel;
@@ -38,6 +89,23 @@ namespace Jeffparty.Client
             set;
         }
 
+        public TimeSpan AnswerTimeRemaining
+        {
+            get;
+            set;
+        }
+
+        public string BuzzedInPlayer
+        {
+            get;
+            set;
+        } = "Unknown";
+        
+        public bool IsDoubleJeopardy { get; set; }
+
+        public ContestantViewModel? Self =>
+            _contestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == Settings.Guid);
+
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
         {
@@ -64,10 +132,16 @@ namespace Jeffparty.Client
         {
             ActiveQuestion = newState.CurrentQuestion;
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
-            
+            AnswerTimeRemaining = TimeSpan.FromSeconds(newState.AnswerTimeRemainingSeconds);
+
+            BuzzedInPlayer =
+                _contestantsViewModel.Contestants
+                    .FirstOrDefault(contestant => contestant.Guid == newState.BuzzedInPlayerId)?.PlayerName ??
+                "Unknown";
 
             IsWagerVisible = newState.PlayerWithDailyDouble == Settings.Guid || newState.IsFinalJeopardy;
             IsQuestionVisible = newState.ShouldShowQuestion;
+            IsDoubleJeopardy = newState.IsDoubleJeopardy;
             IsFinalJeopardy = newState.IsFinalJeopardy;
             FinalJeopardyCategory = newState.FinalJeopardyCategory ?? string.Empty;
             var newCategories = new List<PlayerCategoryViewModel>();
