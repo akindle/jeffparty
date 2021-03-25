@@ -12,6 +12,7 @@ namespace Jeffparty.Interfaces
         Task FindOrCreatePlayerData(Guid joiner, string playerName);
         Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz);
         Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager);
+        Task NotifyFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer);
     }
 
     public interface IMessageHub
@@ -22,5 +23,6 @@ namespace Jeffparty.Interfaces
         Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz);
         Task<bool> SubmitWager(Guid settingsGuid, int playerViewWager);
         Task<bool> QueryConnectedPlayers();
+        Task<bool> SubmitFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer);
     }
 }

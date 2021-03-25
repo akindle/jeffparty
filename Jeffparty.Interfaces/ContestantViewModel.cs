@@ -21,10 +21,13 @@ namespace Jeffparty.Interfaces
             get; 
             set;
         }
+        
+        public string? FinalJeopardyAnswer { get; set; }
 
         public Guid Guid
         {
-            get;set;
+            get;
+            set;
         }
 
         public bool IsBuzzed { get; set; }

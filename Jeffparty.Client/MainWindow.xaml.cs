@@ -204,5 +204,25 @@ namespace Jeffparty.Client
                 });
             }
         }
+
+        public async Task NotifyFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer)
+        {
+            _logger.Trace();
+            if (!viewModel.IsHost)
+            {
+                return;
+            }
+
+            var p =
+                viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
+                    contestant => contestant.Guid == settingsGuid);
+            if (p != null)
+            {
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    p.FinalJeopardyAnswer = playerFinalJeopardyAnswer;
+                });
+            }
+        }
     }
 }

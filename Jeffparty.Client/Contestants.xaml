@@ -5,8 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Jeffparty.Client"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:interfaces="clr-namespace:Jeffparty.Interfaces;assembly=Jeffparty.Interfaces"
-    d:DataContext="{d:DesignInstance Type=interfaces:ContestantsViewModel}"
+    d:DataContext="{d:DesignInstance Type=local:ContestantsViewModel}"
     mc:Ignorable="d">
     <ListView ItemsSource="{Binding Contestants}">
         <ListView.View>
@@ -14,8 +13,25 @@
                 <GridView.Columns>
                     <GridViewColumn DisplayMemberBinding="{Binding Path=IsBuzzed}" Header="Buzzed" />
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PlayerName}" Header="Contestant" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" Width="150"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Wager}" Header="Wager" Width="{Binding WagerColumnWidth}" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" Width="150" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Wager}" Header="Wager"
+                                    Width="{Binding WagerColumnWidth}" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=FinalJeopardyAnswer}" Header="Wager"
+                                    Width="{Binding WagerColumnWidth}" />
+                    <GridViewColumn Width="{Binding WagerColumnWidth}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button
+                                        Content="Yes"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CorrectFinalJeopardy}" />
+                                    <Button
+                                        Content="No"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IncorrectFinalJeopardy}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView.Columns>
             </GridView>
         </ListView.View>

@@ -63,6 +63,7 @@ namespace Jeffparty.Client
     {
         private readonly ContestantsViewModel _contestantsViewModel;
         private uint _wager;
+        private string? _buzzedInPlayer;
 
         public string ActiveQuestion { get; set; }
 
@@ -112,7 +113,16 @@ namespace Jeffparty.Client
 
         public TimeSpan AnswerTimeRemaining { get; set; }
 
-        public string? BuzzedInPlayer { get; set; }
+        public string? BuzzedInPlayer
+        {
+            get => _buzzedInPlayer;
+            set
+            {
+                _buzzedInPlayer = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BuzzedInPlayerDisplayString));
+            }
+        }
 
         public bool IsDoubleJeopardy { get; set; }
 
@@ -122,6 +132,8 @@ namespace Jeffparty.Client
         public string BuzzedInPlayerDisplayString => BuzzedInPlayer == null
             ? "Nobody is currently buzzed in"
             : $"Time left for {BuzzedInPlayer} to answer: ";
+
+        public string FinalJeopardyAnswer { get; set; }
 
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)

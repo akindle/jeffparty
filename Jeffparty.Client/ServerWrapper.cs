@@ -82,5 +82,11 @@ namespace Jeffparty.Client
             _logger.Trace();
             return await (_messageHubImplementation?.QueryConnectedPlayers() ?? Task.FromResult(false));
         }
+
+        public async Task<bool> SubmitFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer)
+        {
+            _logger.Trace();
+            return await (_messageHubImplementation?.SubmitFinalJeopardyAnswer(settingsGuid, playerFinalJeopardyAnswer) ?? Task.FromResult(false));
+        }
     }
 }

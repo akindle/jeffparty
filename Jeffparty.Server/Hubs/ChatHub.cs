@@ -44,6 +44,12 @@ namespace Jeffparty.Server.Hubs
             return true;
         }
 
+        public async Task<bool> SubmitFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer)
+        {
+            await Clients.All.NotifyFinalJeopardyAnswer(settingsGuid, playerFinalJeopardyAnswer);
+            return true;
+        }
+
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
