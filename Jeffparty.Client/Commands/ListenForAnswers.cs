@@ -18,7 +18,7 @@ namespace Jeffparty.Client.Commands
 
         public override void Execute(object? parameter)
         {
-            _game.QuestionTimeRemaining = TimeSpan.FromSeconds(15);
+            _game.QuestionTimeRemaining = TimeSpan.FromSeconds(10);
             _game.LastQuestionFiring = DateTime.Now;
             _game.QuestionTimer.Start();
         }

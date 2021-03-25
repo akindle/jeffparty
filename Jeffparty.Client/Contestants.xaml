@@ -11,7 +11,6 @@
         <ListView.View>
             <GridView>
                 <GridView.Columns>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=IsBuzzed}" Header="Buzzed" />
                     <GridViewColumn DisplayMemberBinding="{Binding Path=PlayerName}" Header="Contestant" />
                     <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" Width="150" />
                     <GridViewColumn DisplayMemberBinding="{Binding Path=Wager}" Header="Wager"

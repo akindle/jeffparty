@@ -10,10 +10,13 @@
     mc:Ignorable="d">
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="#d8f0ff"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsBuzzedIn}" Value="True">
-                    <Setter Property="Background" Value="PowderBlue"/>
+                    <Setter Property="Background" Value="#00d8d8"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CanBuzzIn}" Value="True">
+                    <Setter Property="Background" Value="#a8d8f0"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -90,6 +93,7 @@
                 <TextBlock
                     Width="400"
                     MinHeight="100"
+                    FontSize="20"
                     HorizontalAlignment="Left"
                     Text="{Binding ActiveQuestion}"
                     Visibility="{Binding IsQuestionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -99,8 +103,7 @@
                     <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
                 </TextBlock>
                 <TextBlock >
-                    <Run Text="{Binding BuzzedInPlayerDisplayString, Mode=OneWay}" />
-                    <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
+                    <Run Text="{Binding BuzzedInPlayerDisplayString, Mode=OneWay}" FontSize="24"/>
                 </TextBlock>
                 <Button
                     Command="{Binding BuzzInCommand}"

@@ -29,7 +29,7 @@ namespace Jeffparty.Client.Commands
             if (parameter is string str && bool.TryParse(str, out var b))
             {
                 _logger.LogDebug($"Accept/Reject: {b}");
-                await _game.Server.RequestPlayAnswerAudio(b);
+                await _game.Server.RequestPlayAudio(b ? AudioClips.Ding : AudioClips.Wrong);
                 if (_game.BuzzedInPlayer == null)
                 {
                     _logger.LogError($"Accepting/rejecting a question without a buzzed in player!");

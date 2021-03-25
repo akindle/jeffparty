@@ -92,15 +92,10 @@
             <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
         </TextBlock>
         <TextBlock>
-            <Run Text="Answer time remaining: " />
-            <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
-        </TextBlock>
-        <TextBlock>
             <Run Text="Buzzed in player: "/>
             <Run Text="{Binding GameManager.BuzzedInPlayer.PlayerName, FallbackValue='None'}" />
         </TextBlock>
         <Button Command="{Binding GameManager.ListenForAnswersCommand}" Content="Begin listening for answer" />
-        <Button Command="{Binding GameManager.PauseForAnswerCommand}" Content="Pause for answer" />
         <StackPanel Orientation="Horizontal">
             <Button Content="Correct" Command="{Binding GameManager.AnswerCommand}" CommandParameter="True" />
             <Button Content="Incorrect" Command="{Binding GameManager.AnswerCommand}" CommandParameter="False" />

@@ -50,15 +50,9 @@ namespace Jeffparty.Server.Hubs
             return true;
         }
 
-        public async Task<bool> RequestPlayAnswerAudio(bool isCorrect)
+        public async Task<bool> RequestPlayAudio(AudioClips clip)
         {
-            await Clients.All.DoPlayAnswerAudio(isCorrect);
-            return true;
-        }
-
-        public async Task<bool> RequestPlayTimeoutAudio()
-        {
-            await Clients.All.DoPlayTimeoutAudio();
+            await Clients.All.DoPlayAudio(clip);
             return true;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client.Commands
 {
@@ -31,6 +32,7 @@ namespace Jeffparty.Client.Commands
 
                 if (question.IsDailyDouble)
                 {
+                    await game.Server.RequestPlayAudio(AudioClips.Airhorn);
                     game.PlayerWithDailyDouble = game.LastCorrectPlayer?.Guid ?? Guid.Empty;
                     game.BuzzedInPlayer =
                         game.ContestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == game.PlayerWithDailyDouble);

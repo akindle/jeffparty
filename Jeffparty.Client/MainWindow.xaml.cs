@@ -227,15 +227,19 @@ namespace Jeffparty.Client
             }
         }
 
-        public Task DoPlayAnswerAudio(bool isCorrect)
+        public Task DoPlayAudio(AudioClips clip)
         {
-            AudioPlaybackEngine.Instance.PlaySound(isCorrect ? "./Sounds/ding.mp3" : "./Sounds/wrong.mp3");
-            return Task.CompletedTask;
-        }
-
-        public Task DoPlayTimeoutAudio()
-        {
-            AudioPlaybackEngine.Instance.PlaySound("./Sounds/timeout.mp3");
+            var soundPath = clip switch
+            {
+                AudioClips.Buzz => "./Sounds/buzz.mp3",
+                AudioClips.Ding => "./Sounds/ding.mp3",
+                AudioClips.Airhorn => "./Sounds/mlg-airhorn.mp3",
+                AudioClips.Timeout => "./Sounds/timeout.mp3",
+                AudioClips.Wrong => "./Sounds/wrong.mp3",
+                _ => string.Empty
+            };
+            
+            AudioPlaybackEngine.Instance.PlaySound(soundPath);
             return Task.CompletedTask;
         }
     }

@@ -80,6 +80,8 @@ namespace Jeffparty.Client
         public PersistedSettings Settings { get; set; }
 
         public BuzzIn BuzzInCommand { get; }
+        
+        public bool CanBuzzIn { get; set; }
 
         public bool IsBuzzedIn { get; set; }
 
@@ -119,8 +121,6 @@ namespace Jeffparty.Client
 
         public bool IsQuestionVisible { get; set; }
 
-        public TimeSpan AnswerTimeRemaining { get; set; }
-
         public string? BuzzedInPlayer
         {
             get => _buzzedInPlayer;
@@ -138,8 +138,8 @@ namespace Jeffparty.Client
             _contestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == Settings.Guid);
 
         public string BuzzedInPlayerDisplayString => BuzzedInPlayer == null
-            ? "Nobody is currently buzzed in"
-            : $"Time left for {BuzzedInPlayer} to answer: ";
+            ? ""
+            : $"{BuzzedInPlayer} buzzed in!";
 
         public string FinalJeopardyAnswer
         {
@@ -178,7 +178,6 @@ namespace Jeffparty.Client
         {
             ActiveQuestion = newState.CurrentQuestion;
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
-            AnswerTimeRemaining = TimeSpan.FromSeconds(newState.AnswerTimeRemainingSeconds);
 
             BuzzedInPlayer =
                 _contestantsViewModel.Contestants
@@ -217,6 +216,7 @@ namespace Jeffparty.Client
             IsBuzzedIn = Settings.Guid == newState.BuzzedInPlayerId;
             GameboardCategories = newCategories;
             BuzzInCommand.CanBuzzIn = newState.CanBuzzIn;
+            CanBuzzIn = newState.CanBuzzIn;
         }
     }
 }

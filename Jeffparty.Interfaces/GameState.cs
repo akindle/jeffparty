@@ -27,8 +27,6 @@ namespace Jeffparty.Interfaces
 
         public List<Contestant> Contestants { get; init; }
 
-        public double AnswerTimeRemainingSeconds { get; init; }
-
         public double QuestionTimeRemainingSeconds { get; init; }
 
         public bool CanBuzzIn { get; init; }

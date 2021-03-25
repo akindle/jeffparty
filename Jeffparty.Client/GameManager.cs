@@ -33,21 +33,15 @@ namespace Jeffparty.Client
 
         public ContestantsViewModel ContestantsViewModel { get; }
 
-        public DispatcherTimer AnswerTimer { get; }
-
         public DispatcherTimer QuestionTimer { get; }
 
         public DateTime LastQuestionFiring { get; set; }
 
         public DateTime LastAnswerFiring { get; set; }
 
-        public TimeSpan AnswerTimeRemaining { get; set; }
-
         public TimeSpan QuestionTimeRemaining { get; set; }
 
         public bool CanBuzzIn { get; set; }
-
-        public PauseForAnswer PauseForAnswerCommand { get; }
 
         public AskQuestion AskQuestionCommand { get; }
 
@@ -73,16 +67,10 @@ namespace Jeffparty.Client
             ContestantsViewModel = contestants;
             Server = server;
             HostViewModel = hostViewModel;
-            PauseForAnswerCommand = new PauseForAnswer(this);
             AskQuestionCommand = new AskQuestion(this);
             AnswerCommand = new AcceptOrRejectAnswer(this, loggerFactory);
             ReplaceCategory = new ReplaceCategory(this);
             ListenForAnswersCommand = new ListenForAnswers(this);
-            AnswerTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(0.1)
-            };
-            AnswerTimer.Tick += AnswerTimer_Tick;
             QuestionTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(0.1)
@@ -97,8 +85,6 @@ namespace Jeffparty.Client
             var (category, question) = GenerateDailyDouble();
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
-
-            AdvanceState(GameStates.DoubleJeff);
         }
 
         public GameState SnapshotGameState()
@@ -114,7 +100,6 @@ namespace Jeffparty.Client
                 }).ToList(),
                 Contestants = ContestantsViewModel.Contestants.Select(contestant => new Contestant
                     {Name = contestant.PlayerName, Score = contestant.Score, Guid = contestant.Guid}).ToList(),
-                AnswerTimeRemainingSeconds = AnswerTimeRemaining.TotalSeconds,
                 QuestionTimeRemainingSeconds = QuestionTimeRemaining.TotalSeconds,
                 CanBuzzIn = CanBuzzIn,
                 PlayerWithDailyDouble = PlayerWithDailyDouble,
@@ -126,35 +111,9 @@ namespace Jeffparty.Client
             };
         }
 
-        private async void AnswerTimer_Tick(object? sender, EventArgs e)
-        {
-            _logger.Trace();
-            AnswerTimeRemaining = AnswerTimeRemaining.Subtract(DateTime.Now.Subtract(LastAnswerFiring));
-            LastAnswerFiring = DateTime.Now;
-            if (AnswerTimeRemaining.TotalSeconds <= 0)
-            {
-                _logger.LogDebug("Answer timer expired");
-                await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
-                {
-                    if (BuzzedInPlayer != null) BuzzedInPlayer.Score -= CurrentQuestion.PointValue;
-                });
-                BuzzedInPlayer = null;
-                AnswerTimer.Stop();
-                AnswerTimeRemaining = default;
-                QuestionTimer.Start();
-                CanBuzzIn = true;
-                PauseForAnswerCommand.NotifyExecutabilityChanged();
-            }
-
-            await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
-                HostViewModel.AnswerTimeRemaining = AnswerTimeRemaining);
-            await PropagateGameState();
-        }
-
         private async void QuestionTimer_Tick(object? sender, EventArgs e)
         {
             _logger.Trace();
-            PauseForAnswerCommand.NotifyExecutabilityChanged();
             QuestionTimeRemaining = QuestionTimeRemaining.Subtract(DateTime.Now.Subtract(LastQuestionFiring));
             LastQuestionFiring = DateTime.Now;
             if (QuestionTimeRemaining.TotalSeconds <= 0)
@@ -162,7 +121,7 @@ namespace Jeffparty.Client
                 _logger.LogDebug("Question timer expired");
                 QuestionTimer.Stop();
                 CanBuzzIn = false;
-                await Server.RequestPlayTimeoutAudio();
+                await Server.RequestPlayAudio(AudioClips.Timeout);
                 QuestionTimeRemaining = default;
                 AskQuestionCommand.NotifyExecutabilityChanged();
             }
@@ -186,13 +145,9 @@ namespace Jeffparty.Client
         {
             _logger.Trace();
             CanBuzzIn = false;
-            QuestionTimer.Stop();
-            AnswerTimeRemaining = TimeSpan.FromSeconds(5);
-            LastAnswerFiring = DateTime.Now;
-            AnswerTimer.Start();
-            await PropagateGameState().ConfigureAwait(true);
-            PauseForAnswerCommand.NotifyExecutabilityChanged();
             BuzzedInPlayer = buzzingPlayer;
+            QuestionTimer.Stop();
+            await PropagateGameState().ConfigureAwait(true);
             AnswerCommand.NotifyExecutabilityChanged();
         }
 
@@ -223,10 +178,8 @@ namespace Jeffparty.Client
             _logger.Trace();
             BuzzedInPlayer = null;
             QuestionTimer.Stop();
-            AnswerTimer.Stop();
             ShouldShowQuestion = false;
             QuestionTimeRemaining = default;
-            AnswerTimeRemaining = default;
             await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {
                 GameStates? targetState = forceState;
@@ -369,7 +322,6 @@ namespace Jeffparty.Client
             });
 
             AskQuestionCommand.NotifyExecutabilityChanged();
-            PauseForAnswerCommand.NotifyExecutabilityChanged();
             AnswerCommand.NotifyExecutabilityChanged();
             ListenForAnswersCommand.NotifyExecutabilityChanged();
             await PropagateGameState();
@@ -394,7 +346,6 @@ namespace Jeffparty.Client
             }
 
             AskQuestionCommand.NotifyExecutabilityChanged();
-            PauseForAnswerCommand.NotifyExecutabilityChanged();
             AnswerCommand.NotifyExecutabilityChanged();
             await PropagateGameState();
         }

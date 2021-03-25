@@ -17,7 +17,7 @@ namespace Jeffparty.Client.Commands
 
         public override void Execute(object? parameter)
         {
-            if (parameter is PlayerViewModel playerViewModel)
+            if (parameter is PlayerViewModel playerViewModel && CanBuzzIn)
             {
                 _messageHub.BuzzIn(id, playerViewModel.QuestionTimeRemaining.TotalSeconds);
             }
@@ -25,7 +25,7 @@ namespace Jeffparty.Client.Commands
 
         public override bool CanExecute(object? parameter)
         {
-            return CanBuzzIn;
+            return true;
         }
 
         public bool CanBuzzIn
