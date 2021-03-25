@@ -112,12 +112,16 @@ namespace Jeffparty.Client
 
         public TimeSpan AnswerTimeRemaining { get; set; }
 
-        public string BuzzedInPlayer { get; set; } = "Unknown";
+        public string? BuzzedInPlayer { get; set; }
 
         public bool IsDoubleJeopardy { get; set; }
 
         public ContestantViewModel? Self =>
             _contestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == Settings.Guid);
+
+        public string BuzzedInPlayerDisplayString => BuzzedInPlayer == null
+            ? "Nobody is currently buzzed in"
+            : $"Time left for {BuzzedInPlayer} to answer: ";
 
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
@@ -149,8 +153,7 @@ namespace Jeffparty.Client
 
             BuzzedInPlayer =
                 _contestantsViewModel.Contestants
-                    .FirstOrDefault(contestant => contestant.Guid == newState.BuzzedInPlayerId)?.PlayerName ??
-                "Unknown";
+                    .FirstOrDefault(contestant => contestant.Guid == newState.BuzzedInPlayerId)?.PlayerName;
 
             IsWagerVisible = newState.PlayerWithDailyDouble == Settings.Guid || newState.IsFinalJeopardy;
             IsQuestionVisible = newState.ShouldShowQuestion;

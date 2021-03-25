@@ -247,11 +247,12 @@ namespace Jeffparty.Client
                                 throw new InvalidOperationException()
                             }.Select(cvm => new CategoryViewModel
                             {
+                                CategoryHeader =  cvm.CategoryHeader,
                                 CategoryQuestions = cvm.CategoryQuestions.Select(q => new QuestionViewModel
                                     {
                                         AnswerText = q.AnswerText,
                                         IsAsked = false,
-                                        IsDailyDouble = false, // TODO
+                                        IsDailyDouble = false,
                                         PointValue = q.PointValue * 2,
                                         QuestionText = q.QuestionText
                                     })

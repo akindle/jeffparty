@@ -56,7 +56,7 @@ namespace Jeffparty.Client
                 builder
                     .AddFilter("Microsoft", LogLevel.Warning)
                     .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("Jeffparty", LogLevel.Trace)
+                    .AddFilter("Jeffparty", LogLevel.Debug)
                     .AddProvider(new DebugLoggerProvider())
                     .AddProvider(new EventLogLoggerProvider(new EventLogSettings
                     {

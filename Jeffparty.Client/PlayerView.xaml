@@ -98,10 +98,8 @@
                     <Run Text="Time left to buzz in: " />
                     <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
                 </TextBlock>
-                <TextBlock>
-                    <Run Text="Time left for " />
-                    <Run Text="{Binding BuzzedInPlayer}" />
-                    <Run Text=" to answer: " />
+                <TextBlock >
+                    <Run Text="{Binding BuzzedInPlayerDisplayString, Mode=OneWay}" />
                     <Run Text="{Binding AnswerTimeRemaining, StringFormat={}{0:ss\\:ff}}" />
                 </TextBlock>
                 <Button
@@ -142,9 +140,8 @@
                     Grid.Column="1"
                     FontSize="16"
                     MinWidth="75"
-                    Text="{Binding Wager, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"/>
+                    Text="{Binding Wager, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, Delay=200, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button
-                    x:Name="SubmitWagerButton"
                     Grid.Row="3"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
