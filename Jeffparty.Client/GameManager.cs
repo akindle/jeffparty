@@ -97,6 +97,8 @@ namespace Jeffparty.Client
             var (category, question) = GenerateDailyDouble();
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
+
+            AdvanceState(GameStates.DoubleJeff);
         }
 
         public GameState SnapshotGameState()
@@ -160,6 +162,7 @@ namespace Jeffparty.Client
                 _logger.LogDebug("Question timer expired");
                 QuestionTimer.Stop();
                 CanBuzzIn = false;
+                await Server.RequestPlayTimeoutAudio();
                 QuestionTimeRemaining = default;
                 AskQuestionCommand.NotifyExecutabilityChanged();
             }
@@ -208,7 +211,14 @@ namespace Jeffparty.Client
             return (dailyDoubleCategory, dailyDoubleQuestion);
         }
 
-        public async Task AdvanceState()
+        public enum GameStates
+        {
+            Jeff,
+            DoubleJeff,
+            FinalJeff
+        }
+
+        public async Task AdvanceState(GameStates? forceState=null)
         {
             _logger.Trace();
             BuzzedInPlayer = null;
@@ -219,9 +229,30 @@ namespace Jeffparty.Client
             AnswerTimeRemaining = default;
             await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {
-                if (HostViewModel.Categories.All(model => model.CategoryQuestions.All(question => question.IsAsked)))
+                GameStates? targetState = forceState;
+                if (forceState != null)
                 {
-                    if (!IsDoubleJeopardy)
+                    targetState = forceState;
+                }
+                else if(HostViewModel.Categories.All(model => model.CategoryQuestions.All(question => question.IsAsked)))
+                {
+                    if (!IsDoubleJeopardy && !IsFinalJeopardy)
+                    {
+                        targetState = GameStates.DoubleJeff;
+                    }
+                    else if (IsDoubleJeopardy && !IsFinalJeopardy)
+                    {
+                        targetState = GameStates.FinalJeff;
+                    }
+                    else
+                    {
+                        targetState = GameStates.Jeff;
+                    }
+                }
+                
+                if(targetState != null)
+                {
+                    if (targetState == GameStates.DoubleJeff)
                     {
                         _logger.LogDebug("Advancing to double jeopardy");
                         IsDoubleJeopardy = true;
@@ -272,7 +303,7 @@ namespace Jeffparty.Client
                             }
                         }
                     }
-                    else if (!IsFinalJeopardy && IsDoubleJeopardy)
+                    else if (targetState == GameStates.FinalJeff)
                     {
                         _logger.LogDebug("Advancing to final jeopardy");
                         IsFinalJeopardy = true;
@@ -293,7 +324,7 @@ namespace Jeffparty.Client
                         };
                         // TODO
                     }
-                    else
+                    else if(targetState == GameStates.Jeff)
                     {
                         _logger.LogDebug("Advancing to new game");
                         HostViewModel.Categories = new List<CategoryViewModel>

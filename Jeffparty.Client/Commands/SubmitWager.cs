@@ -14,7 +14,7 @@ namespace Jeffparty.Client.Commands
             _server = server;
             playerView.PropertyChanged += (sender, args) =>
             {
-                if (args.PropertyName == nameof(_playerView.IsWagerVisible))
+                if (args.PropertyName == nameof(_playerView.IsWagerVisible) || args.PropertyName == nameof(_playerView.IsFinalJeopardy))
                 {
                     _hasWagered = false;
                 }

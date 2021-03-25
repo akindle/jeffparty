@@ -88,5 +88,17 @@ namespace Jeffparty.Client
             _logger.Trace();
             return await (_messageHubImplementation?.SubmitFinalJeopardyAnswer(settingsGuid, playerFinalJeopardyAnswer) ?? Task.FromResult(false));
         }
+
+        public async Task<bool> RequestPlayAnswerAudio(bool isCorrect)
+        {
+            _logger.Trace();
+            return await (_messageHubImplementation?.RequestPlayAnswerAudio(isCorrect) ?? Task.FromResult(false));
+        }
+
+        public async Task<bool> RequestPlayTimeoutAudio()
+        {
+            _logger.Trace();
+            return await (_messageHubImplementation?.RequestPlayTimeoutAudio() ?? Task.FromResult(false));
+        }
     }
 }

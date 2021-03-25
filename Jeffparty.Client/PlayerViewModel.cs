@@ -62,8 +62,9 @@ namespace Jeffparty.Client
     public class PlayerViewModel : Notifier
     {
         private readonly ContestantsViewModel _contestantsViewModel;
-        private uint _wager;
+        private uint? _wager;
         private string? _buzzedInPlayer;
+        private string _finalJeopardyAnswer;
 
         public string ActiveQuestion { get; set; }
 
@@ -83,12 +84,19 @@ namespace Jeffparty.Client
         public bool IsBuzzedIn { get; set; }
 
         public SubmitWager SubmitWager { get; set; }
+        
+        public SubmitFinalJeopardy SubmitFinalJeopardy { get; set; }
 
-        public uint Wager
+        public uint? Wager
         {
             get => _wager;
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentException("Wager missing");
+                }
+                
                 if (IsDoubleJeopardy && value > Math.Max(2000, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
@@ -133,7 +141,15 @@ namespace Jeffparty.Client
             ? "Nobody is currently buzzed in"
             : $"Time left for {BuzzedInPlayer} to answer: ";
 
-        public string FinalJeopardyAnswer { get; set; }
+        public string FinalJeopardyAnswer
+        {
+            get => _finalJeopardyAnswer;
+            set
+            {
+                _finalJeopardyAnswer = value;
+                SubmitFinalJeopardy.NotifyExecutabilityChanged();
+            }
+        }
 
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
@@ -155,6 +171,7 @@ namespace Jeffparty.Client
             FinalJeopardyCategory = string.Empty;
             BuzzInCommand = new BuzzIn(settings.Guid, Server);
             SubmitWager = new SubmitWager(this, Server);
+            SubmitFinalJeopardy = new SubmitFinalJeopardy(this, Server);
         }
 
         public void Update(GameState newState)

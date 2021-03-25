@@ -16,18 +16,22 @@
                     <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" Width="150" />
                     <GridViewColumn DisplayMemberBinding="{Binding Path=Wager}" Header="Wager"
                                     Width="{Binding WagerColumnWidth}" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=FinalJeopardyAnswer}" Header="Wager"
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=FinalJeopardyAnswer}" 
+                                    Header="Final Jeff Response"
                                     Width="{Binding WagerColumnWidth}" />
-                    <GridViewColumn Width="{Binding WagerColumnWidth}">
+                    <GridViewColumn Width="{Binding WagerColumnWidth}"
+                                    Header="Final Jeff Judging">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button
                                         Content="Yes"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CorrectFinalJeopardy}" />
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CorrectFinalJeopardy}"
+                                        CommandParameter="{Binding}" />
                                     <Button
                                         Content="No"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IncorrectFinalJeopardy}" />
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IncorrectFinalJeopardy}"
+                                        CommandParameter="{Binding}" />
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

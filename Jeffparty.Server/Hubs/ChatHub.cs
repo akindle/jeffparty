@@ -50,6 +50,18 @@ namespace Jeffparty.Server.Hubs
             return true;
         }
 
+        public async Task<bool> RequestPlayAnswerAudio(bool isCorrect)
+        {
+            await Clients.All.DoPlayAnswerAudio(isCorrect);
+            return true;
+        }
+
+        public async Task<bool> RequestPlayTimeoutAudio()
+        {
+            await Clients.All.DoPlayTimeoutAudio();
+            return true;
+        }
+
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();

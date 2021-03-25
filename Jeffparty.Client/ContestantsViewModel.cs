@@ -5,12 +5,14 @@ using System.ComponentModel;
 using System.Linq;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Jeffparty.Client
 {
     public sealed class ContestantsViewModel : Notifier
     {
         private bool _showWagerColumn;
+        private ILogger _logger;
 
         public ObservableCollection<ContestantViewModel> Contestants { get; set; }
 
@@ -32,6 +34,7 @@ namespace Jeffparty.Client
 
         public ContestantsViewModel()
         {
+            _logger = MainWindow.LogFactory.CreateLogger<ContestantsViewModel>();
             CorrectFinalJeopardy = new GradeFinalJeopardyCommand(true);
             IncorrectFinalJeopardy = new GradeFinalJeopardyCommand(false);
             Contestants = new ObservableCollection<ContestantViewModel>();
@@ -39,7 +42,9 @@ namespace Jeffparty.Client
         }
 
         private void ContestantsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {if (e.NewItems != null)
+        {
+            _logger.Trace();
+            if (e.NewItems != null)
             {
                 foreach (var contestant in e.NewItems.OfType<ContestantViewModel>())
                 {
@@ -58,43 +63,14 @@ namespace Jeffparty.Client
 
         private void ContestantOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            CorrectFinalJeopardy.NotifyExecutabilityChanged();
-            IncorrectFinalJeopardy.NotifyExecutabilityChanged();
-        }
-    }
-
-    public class GradeFinalJeopardyCommand : CommandBase
-    {
-        private readonly bool _isGradingYes;
-
-        public GradeFinalJeopardyCommand(bool isGradingYes)
-        {
-            _isGradingYes = isGradingYes;
-        }
-
-        public override bool CanExecute(object? parameter)
-        {
-            if (parameter is ContestantViewModel contestant)
+            _logger.Trace();
+            if (e.PropertyName == nameof(Contestant.Score))
             {
-                return contestant.FinalJeopardyAnswer != null;
+                GradeFinalJeopardyCommand.Reset();
             }
             
-            return false;
-        }
-
-        public override void Execute(object? parameter)
-        {
-            if (parameter is ContestantViewModel contestant)
-            {
-                if (_isGradingYes)
-                {
-                    contestant.Score += contestant.Wager ?? 0;
-                }
-                else
-                {
-                    contestant.Score -= contestant.Wager ?? 0;
-                }
-            }
+            CorrectFinalJeopardy.NotifyExecutabilityChanged();
+            IncorrectFinalJeopardy.NotifyExecutabilityChanged();
         }
     }
 }

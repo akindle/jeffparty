@@ -51,8 +51,15 @@ namespace Jeffparty.Client
             settings.MainWindow = this;
 
             ContestantsViewModel = new ContestantsViewModel {ShowWagerColumn = IsHost};
-            PlayerViewModel = new PlayerViewModel(settings, server, ContestantsViewModel);
-            HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
+            
+            if (IsHost)
+            {
+                HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
+            }
+            else
+            {
+                PlayerViewModel = new PlayerViewModel(settings, server, ContestantsViewModel);
+            }
         }
     }
 }

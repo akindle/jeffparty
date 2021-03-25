@@ -157,13 +157,14 @@
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     FontSize="24"
-                    Text="Answer goes here"
+                    Text="{Binding FinalJeopardyAnswer, Delay=200, UpdateSourceTrigger=PropertyChanged}"
                     Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <Button
                     Grid.Row="6"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Content="Submit answer"
+                    Command="{Binding SubmitFinalJeopardy}"
                     Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </Grid>
         </StackPanel>
