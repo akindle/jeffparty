@@ -38,6 +38,12 @@ namespace Jeffparty.Server.Hubs
             return true;
         }
 
+        public async Task<bool> QueryConnectedPlayers()
+        {
+            await Clients.Others.OnConnected();
+            return true;
+        }
+
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();

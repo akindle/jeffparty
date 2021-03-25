@@ -21,5 +21,6 @@ namespace Jeffparty.Interfaces
         Task<bool> FoundJoiningPlayer(ContestantViewModel contestant);
         Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz);
         Task<bool> SubmitWager(Guid settingsGuid, int playerViewWager);
+        Task<bool> QueryConnectedPlayers();
     }
 }

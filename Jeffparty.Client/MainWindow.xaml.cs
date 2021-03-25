@@ -112,7 +112,7 @@ namespace Jeffparty.Client
             }
             else
             {
-                // discover players
+                await hub.QueryConnectedPlayers();
             }
 
             viewModel.ConnectionState = "Connected";

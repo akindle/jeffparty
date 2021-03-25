@@ -13,14 +13,11 @@
             <Setter Property="Background" Value="White"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsBuzzedIn}" Value="True">
-                    <Setter Property="Background" Value="Chartreuse"/>
+                    <Setter Property="Background" Value="PowderBlue"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <UserControl.InputBindings>
-        <KeyBinding Key="B" Command="{Binding BuzzInCommand}" />
-    </UserControl.InputBindings>
     <StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>

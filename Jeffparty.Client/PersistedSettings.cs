@@ -69,6 +69,7 @@ namespace Jeffparty.Client
             {
                 var settingsPath = $"{Directory.GetCurrentDirectory()}\\settings.xml";
                 var xml = new XmlSerializer(typeof(PersistedSettings));
+                if(File.Exists(settingsPath)) File.Delete(settingsPath);
                 using var stream = File.OpenWrite(settingsPath);
                 xml.Serialize(stream, this);
             }
