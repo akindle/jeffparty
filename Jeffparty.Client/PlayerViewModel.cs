@@ -17,7 +17,7 @@ namespace Jeffparty.Client
         {
             _player = player;
         }
-        
+
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             if (value is int i || (value is string str && int.TryParse(str, out i)))
@@ -26,6 +26,7 @@ namespace Jeffparty.Client
                 {
                     return new ValidationResult(false, "Wager is below 0");
                 }
+
                 if (_player.IsDoubleJeopardy)
                 {
                     if (i < Math.Max(2000, _player.Self?.Score ?? 0))
@@ -57,10 +58,11 @@ namespace Jeffparty.Client
             return new ValidationResult(false, "Not a number");
         }
     }
-    
+
     public class PlayerViewModel : Notifier
     {
         private readonly ContestantsViewModel _contestantsViewModel;
+        private uint _wager;
 
         public string ActiveQuestion { get; set; }
 
@@ -81,26 +83,37 @@ namespace Jeffparty.Client
 
         public SubmitWager SubmitWager { get; set; }
 
-        public uint Wager { get; set; }
-
-        public bool IsQuestionVisible
+        public uint Wager
         {
-            get;
-            set;
+            get => _wager;
+            set
+            {
+                if (IsDoubleJeopardy && value > Math.Max(2000, Self?.Score ?? 0))
+                {
+                    throw new ArgumentException("Wager too high");
+                }
+
+                if (IsFinalJeopardy && value > Math.Max(0, Self?.Score ?? 0))
+                {
+                    throw new ArgumentException("Wager too high");
+                }
+
+                if (value > Math.Max(1000, Self?.Score ?? 0))
+                {
+                    throw new ArgumentException("Wager too high");
+                }
+
+                SubmitWager.NotifyExecutabilityChanged();
+                _wager = value;
+            }
         }
 
-        public TimeSpan AnswerTimeRemaining
-        {
-            get;
-            set;
-        }
+        public bool IsQuestionVisible { get; set; }
 
-        public string BuzzedInPlayer
-        {
-            get;
-            set;
-        } = "Unknown";
-        
+        public TimeSpan AnswerTimeRemaining { get; set; }
+
+        public string BuzzedInPlayer { get; set; } = "Unknown";
+
         public bool IsDoubleJeopardy { get; set; }
 
         public ContestantViewModel? Self =>

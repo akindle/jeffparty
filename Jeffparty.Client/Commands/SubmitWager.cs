@@ -16,7 +16,6 @@ namespace Jeffparty.Client.Commands
             {
                 if (args.PropertyName == nameof(_playerView.IsWagerVisible))
                 {
-                    NotifyExecutabilityChanged();
                     _hasWagered = false;
                 }
             };

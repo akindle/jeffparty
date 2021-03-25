@@ -140,9 +140,9 @@
                 <TextBox
                     Grid.Row="2"
                     Grid.Column="1"
-                    IsEnabled="{Binding ElementName=SubmitWagerButton, Path=IsEnabled}"
                     FontSize="16"
-                    Text="{Binding Wager}" />
+                    MinWidth="75"
+                    Text="{Binding Wager, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}"/>
                 <Button
                     x:Name="SubmitWagerButton"
                     Grid.Row="3"
