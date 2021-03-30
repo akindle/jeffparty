@@ -154,6 +154,7 @@ namespace Jeffparty.Client
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
         {
+            _finalJeopardyAnswer = string.Empty;
             _contestantsViewModel = contestantsViewModel;
             Settings = settings;
 

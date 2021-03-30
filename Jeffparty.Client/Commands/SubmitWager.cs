@@ -12,7 +12,7 @@ namespace Jeffparty.Client.Commands
         {
             _playerView = playerView;
             _server = server;
-            playerView.PropertyChanged += (sender, args) =>
+            playerView.PropertyChanged += (_, args) =>
             {
                 if (args.PropertyName == nameof(_playerView.IsWagerVisible) || args.PropertyName == nameof(_playerView.IsFinalJeopardy))
                 {
@@ -23,11 +23,16 @@ namespace Jeffparty.Client.Commands
         
         public override bool CanExecute(object? parameter)
         {
-            return _playerView.IsWagerVisible && !_hasWagered;
+            return _playerView.IsWagerVisible && !_hasWagered && _playerView.Wager != null;
         }
 
         public override async void Execute(object? parameter)
         {
+            if (_playerView.Wager == null)
+            {
+                return;
+            }
+            
             _hasWagered = true;
             _playerView.IsQuestionVisible = true;
             await _server.SubmitWager(_playerView.Settings.Guid, (int)_playerView.Wager);

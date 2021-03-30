@@ -105,7 +105,7 @@ namespace Jeffparty.Client
         public async Task UpdateGameState(GameState state)
         {
             _logger.Trace();
-            await Dispatcher.InvokeAsync(() => viewModel.PlayerViewModel.Update(state));
+            await Dispatcher.InvokeAsync(() => viewModel.PlayerViewModel?.Update(state));
         }
 
         public async Task OnConnected()
@@ -180,14 +180,14 @@ namespace Jeffparty.Client
             {
                 AudioPlaybackEngine.Instance.PlaySound("./Sounds/buzz.mp3");
 
-                Dispatcher.InvokeAsync(async () =>
+                await Dispatcher.InvokeAsync(() =>
                 {
                     lock (locker)
                     {
                         p.IsBuzzed = true;
                         if (viewModel.IsHost)
                         {
-                            viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz).RunSynchronously();
+                            viewModel.HostViewModel?.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz).RunSynchronously();
                         }
                     }
                 });

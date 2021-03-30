@@ -26,14 +26,16 @@ namespace Jeffparty.Client.Commands
         public override async void Execute(object? parameter)
         {
             _logger.Trace();
+            if (_game.BuzzedInPlayer == null)
+            {
+                _logger.LogError($"Attempted to accept or reject an answer for a buzzed in player! Early returned instead");
+                return;
+            }
+            
             if (parameter is string str && bool.TryParse(str, out var b))
             {
                 _logger.LogDebug($"Accept/Reject: {b}");
                 await _game.Server.RequestPlayAudio(b ? AudioClips.Ding : AudioClips.Wrong);
-                if (_game.BuzzedInPlayer == null)
-                {
-                    _logger.LogError($"Accepting/rejecting a question without a buzzed in player!");
-                }
                 // handle accept/reject daily double
                 if (_game.CurrentQuestion.IsDailyDouble)
                 {

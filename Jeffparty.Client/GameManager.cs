@@ -63,6 +63,9 @@ namespace Jeffparty.Client
         public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants,
             ILoggerFactory loggerFactory)
         {
+            FinalJeopardyCategory = string.Empty;
+            FinalJeopardyQuestion = string.Empty;
+            FinalJeopardyAnswer = string.Empty;
             _logger = loggerFactory.CreateLogger<GameManager>();
             ContestantsViewModel = contestants;
             Server = server;
@@ -86,7 +89,7 @@ namespace Jeffparty.Client
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
 
-            AdvanceState(GameStates.DoubleJeff);
+            AdvanceState(GameStates.DoubleJeff).RunSynchronously();
         }
 
         public GameState SnapshotGameState()

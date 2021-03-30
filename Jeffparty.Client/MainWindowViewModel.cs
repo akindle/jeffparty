@@ -9,9 +9,9 @@ namespace Jeffparty.Client
 
         public ContestantsViewModel ContestantsViewModel { get; set; }
 
-        public HostViewModel HostViewModel { get; set; }
+        public HostViewModel? HostViewModel { get; set; }
 
-        public PlayerViewModel PlayerViewModel { get; set; }
+        public PlayerViewModel? PlayerViewModel { get; set; }
 
         public bool IsHost
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Jeffparty.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +39,7 @@ namespace Jeffparty.Client.Commands
             _logger.LogDebug($"Submitting {_player.FinalJeopardyAnswer} for {_player.Settings.Guid}");
             _hasSubmitted = true;
             await _messageHub.SubmitFinalJeopardyAnswer(_player.Settings.Guid, _player.FinalJeopardyAnswer);
-            _player.FinalJeopardyAnswer = string.Empty;
+            await Dispatcher.CurrentDispatcher.InvokeAsync(() => _player.FinalJeopardyAnswer = string.Empty);
             NotifyExecutabilityChanged();
         }
     }
