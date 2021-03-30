@@ -5,29 +5,18 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Windows.Input;
 using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client
 {
     public class CategoryViewModel : Notifier
     {
-        private static readonly HashSet<string> UsedPaths = new HashSet<string>();
+        private static readonly HashSet<string> UsedPaths = new();
 
-        public string CategoryHeader
-        {
-            get;
-            set;
-        } = string.Empty;
+        public string CategoryHeader { get; set; } = string.Empty;
 
-        public List<QuestionViewModel> CategoryQuestions
-        {
-            get;
-            set;
-        } = new();
+        public List<QuestionViewModel> CategoryQuestions { get; set; } = new();
 
-        public string RootDirectory = Directory.GetCurrentDirectory();
-        
         public static CategoryViewModel GenerateNonsense()
         {
             var result = new CategoryViewModel();
@@ -36,10 +25,11 @@ namespace Jeffparty.Client
             return result;
         }
 
-        public static CategoryViewModel? CreateRandom(string rootDirectory)
+        public static CategoryViewModel? CreateRandom()
         {
             try
             {
+                var rootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Categories");
                 var files = Directory.EnumerateFiles(rootDirectory)
                     .Where(fileName => fileName.Contains("category")).ToList();
                 var rand = new Random();
@@ -54,11 +44,6 @@ namespace Jeffparty.Client
                         shouldLoop = false;
                     }
                 } while (shouldLoop);
-
-                if (result != null)
-                {
-                    result.RootDirectory = rootDirectory;
-                }
 
                 return result;
             }
@@ -89,7 +74,7 @@ namespace Jeffparty.Client
                 var questionText = File.ReadAllLines(questionsPath);
                 var answerText = File.ReadAllLines(answersPath);
                 Debug.Assert(questionText[0] == answerText[0]);
-                var res = new CategoryViewModel { CategoryHeader = CleanUpString(questionText[0]) };
+                var res = new CategoryViewModel {CategoryHeader = CleanUpString(questionText[0])};
                 for (var i = 1; i < questionText.Length; i++)
                 {
                     if (questionText[i].Contains("<"))

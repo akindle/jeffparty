@@ -179,16 +179,22 @@ namespace Jeffparty.Client
             if (p != null)
             {
                 AudioPlaybackEngine.Instance.PlaySound("./Sounds/buzz.mp3");
-                await Dispatcher.InvokeAsync(async () =>
+
+                Dispatcher.InvokeAsync(async () =>
                 {
-                    p.IsBuzzed = true;
-                    if (viewModel.IsHost)
+                    lock (locker)
                     {
-                        await viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz);
+                        p.IsBuzzed = true;
+                        if (viewModel.IsHost)
+                        {
+                            viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz).RunSynchronously();
+                        }
                     }
                 });
             }
         }
+
+        private object locker = new object();
 
         public async Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager)
         {
@@ -238,7 +244,7 @@ namespace Jeffparty.Client
                 AudioClips.Wrong => "./Sounds/wrong.mp3",
                 _ => string.Empty
             };
-            
+
             AudioPlaybackEngine.Instance.PlaySound(soundPath);
             return Task.CompletedTask;
         }

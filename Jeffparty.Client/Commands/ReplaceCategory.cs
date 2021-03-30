@@ -31,7 +31,7 @@ namespace Jeffparty.Client.Commands
                 await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
                 {
                     var questionValues = category.CategoryQuestions.ToList();
-                    var tempReplacement = CategoryViewModel.CreateRandom(category.RootDirectory) ?? CategoryViewModel.GenerateNonsense();
+                    var tempReplacement = CategoryViewModel.CreateRandom() ?? CategoryViewModel.GenerateNonsense();
                     category.CategoryHeader = tempReplacement.CategoryHeader;
                     category.CategoryQuestions = tempReplacement.CategoryQuestions;
                     foreach (var (source, target) in questionValues.Zip(category.CategoryQuestions))

@@ -85,6 +85,8 @@ namespace Jeffparty.Client
             var (category, question) = GenerateDailyDouble();
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
+
+            AdvanceState(GameStates.DoubleJeff);
         }
 
         public GameState SnapshotGameState()
@@ -211,23 +213,17 @@ namespace Jeffparty.Client
                         IsDoubleJeopardy = true;
                         HostViewModel.Categories = new List<CategoryViewModel>
                             {
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException()
                             }.Select(cvm => new CategoryViewModel
                             {
@@ -282,23 +278,17 @@ namespace Jeffparty.Client
                         _logger.LogDebug("Advancing to new game");
                         HostViewModel.Categories = new List<CategoryViewModel>
                             {
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom(
-                                    @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                                CategoryViewModel.CreateRandom() ??
                                 throw new InvalidOperationException()
                             }.Select(cvm => new CategoryViewModel
                             {

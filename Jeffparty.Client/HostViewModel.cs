@@ -8,8 +8,6 @@ namespace Jeffparty.Client
 {
     public class HostViewModel : Notifier
     {
-        public TimeSpan AnswerTimeRemaining { get; set; }
-
         public TimeSpan QuestionTimeRemaining { get; set; }
 
         public List<CategoryViewModel> Categories { get; set; }
@@ -24,22 +22,17 @@ namespace Jeffparty.Client
             {
                 Categories = new List<CategoryViewModel>
                 {
-                    CategoryViewModel.CreateRandom(
-                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom(
-                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom(
-                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom(
-                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom(
-                        @"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories") ??
+                    CategoryViewModel.CreateRandom() ??
                     CategoryViewModel.GenerateNonsense()
                 };
             }
