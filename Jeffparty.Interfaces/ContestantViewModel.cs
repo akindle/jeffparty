@@ -32,6 +32,12 @@ namespace Jeffparty.Interfaces
 
         public bool IsBuzzed { get; set; }
 
+        public int ScoreOverride
+        {
+            get;
+            set;
+        }
+
         public ContestantViewModel()
         {
             PlayerName = "Player 1";

@@ -173,6 +173,11 @@ namespace Jeffparty.Client
         public async Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz)
         {
             _logger.Trace();
+            if (viewModel.ContestantsViewModel.Contestants.Any(contestant => contestant.IsBuzzed))
+            {
+                return;
+            }
+            
             var p =
                 viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
                     contestant => contestant.Guid == buzzingPlayer);
@@ -180,15 +185,11 @@ namespace Jeffparty.Client
             {
                 AudioPlaybackEngine.Instance.PlaySound("./Sounds/buzz.mp3");
 
-                await Dispatcher.InvokeAsync(() =>
+                await Dispatcher.InvokeAsync(async () =>
                 {
-                    lock (locker)
+                    if (viewModel.IsHost && viewModel.HostViewModel != null)
                     {
-                        p.IsBuzzed = true;
-                        if (viewModel.IsHost)
-                        {
-                            viewModel.HostViewModel?.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz).RunSynchronously();
-                        }
+                        await viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz);
                     }
                 });
             }

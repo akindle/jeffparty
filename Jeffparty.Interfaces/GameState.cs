@@ -17,6 +17,8 @@ namespace Jeffparty.Interfaces
         public int Score { get; init; }
 
         public Guid Guid { get; init; }
+        
+        public bool IsBuzzedIn { get; init; }
     }
 
     public readonly struct GameState

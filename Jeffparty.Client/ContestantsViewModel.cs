@@ -11,22 +11,28 @@ namespace Jeffparty.Client
 {
     public sealed class ContestantsViewModel : Notifier
     {
-        private bool _showWagerColumn;
+        private bool _isHost;
         private ILogger _logger;
 
         public ObservableCollection<ContestantViewModel> Contestants { get; set; }
 
-        public int WagerColumnWidth => ShowWagerColumn ? 150 : 0;
+        public int WagerColumnWidth => IsHost ? 150 : 0;
 
-        public bool ShowWagerColumn
+        public bool IsHost
         {
-            get => _showWagerColumn;
+            get => _isHost;
             set
             {
-                _showWagerColumn = value;
+                _isHost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(WagerColumnWidth));
             }
+        }
+
+        public AdminSetScore? AdminSetScore
+        {
+            get;
+            set;
         }
         
         public GradeFinalJeopardyCommand CorrectFinalJeopardy { get; }

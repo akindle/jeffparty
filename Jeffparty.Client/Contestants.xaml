@@ -5,38 +5,70 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Jeffparty.Client"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:interfaces="clr-namespace:Jeffparty.Interfaces;assembly=Jeffparty.Interfaces"
     d:DataContext="{d:DesignInstance Type=local:ContestantsViewModel}"
     mc:Ignorable="d">
     <ListView ItemsSource="{Binding Contestants}">
-        <ListView.View>
-            <GridView>
-                <GridView.Columns>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=PlayerName}" Header="Contestant" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Score}" Header="Score" Width="150" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Wager}" Header="Wager"
-                                    Width="{Binding WagerColumnWidth}" />
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=FinalJeopardyAnswer}" 
-                                    Header="Final Jeff Response"
-                                    Width="{Binding WagerColumnWidth}" />
-                    <GridViewColumn Width="{Binding WagerColumnWidth}"
-                                    Header="Final Jeff Judging">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button
-                                        Content="Yes"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CorrectFinalJeopardy}"
-                                        CommandParameter="{Binding}" />
-                                    <Button
-                                        Content="No"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IncorrectFinalJeopardy}"
-                                        CommandParameter="{Binding}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView.Columns>
-            </GridView>
-        </ListView.View>
+        <ListView.ItemTemplate>
+            <DataTemplate DataType="{x:Type interfaces:ContestantViewModel}">
+                <Border BorderThickness="2">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBuzzed}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#00d8d8"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel MinWidth="200">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Player: "/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PlayerName}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Score:"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Score}"/>
+                    </Grid>
+                    <StackPanel
+                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IsHost,  Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock>
+                            <Run Text="Wager:" />
+                            <Run Text="{Binding Wager}" />
+                        </TextBlock>
+                        <TextBlock>
+                            <Run Text="Final Jeff:" />
+                            <Run Text="{Binding FinalJeopardyAnswer}" />
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Button
+                                Content="Right"
+                                Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CorrectFinalJeopardy}"
+                                CommandParameter="{Binding}" />
+                            <Button
+                                Content="Wrong"
+                                Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.IncorrectFinalJeopardy}"
+                                CommandParameter="{Binding}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Set score" />
+                            <TextBox Text="{Binding ScoreOverride}" />
+                            <Button Content="Apply"
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AdminSetScore}"
+                                    CommandParameter="{Binding}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                </Border>
+            </DataTemplate>
+        </ListView.ItemTemplate>
     </ListView>
 </UserControl>

@@ -88,8 +88,6 @@ namespace Jeffparty.Client
             var (category, question) = GenerateDailyDouble();
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
-
-            AdvanceState(GameStates.DoubleJeff).RunSynchronously();
         }
 
         public GameState SnapshotGameState()
@@ -104,7 +102,7 @@ namespace Jeffparty.Client
                     AvailableQuestions = cat.CategoryQuestions.Select(q => !q.IsAsked).ToList()
                 }).ToList(),
                 Contestants = ContestantsViewModel.Contestants.Select(contestant => new Contestant
-                    {Name = contestant.PlayerName, Score = contestant.Score, Guid = contestant.Guid}).ToList(),
+                    {Name = contestant.PlayerName, Score = contestant.Score, Guid = contestant.Guid, IsBuzzedIn = contestant.IsBuzzed}).ToList(),
                 QuestionTimeRemainingSeconds = QuestionTimeRemaining.TotalSeconds,
                 CanBuzzIn = CanBuzzIn,
                 PlayerWithDailyDouble = PlayerWithDailyDouble,
@@ -149,8 +147,19 @@ namespace Jeffparty.Client
         public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
         {
             _logger.Trace();
+            if (AnswerCommand.CanExecute(null))
+            {
+                return;
+            }
+            
             CanBuzzIn = false;
             BuzzedInPlayer = buzzingPlayer;
+            foreach (var player in ContestantsViewModel.Contestants)
+            {
+                player.IsBuzzed = false;
+            }
+            
+            BuzzedInPlayer.IsBuzzed = true;
             QuestionTimer.Stop();
             await PropagateGameState().ConfigureAwait(true);
             AnswerCommand.NotifyExecutabilityChanged();
@@ -243,13 +252,15 @@ namespace Jeffparty.Client
                             })
                             .ToList();
                         var assignedDailyDoubles = 0;
+                        var lastCategory = -1;
                         while (assignedDailyDoubles < 2)
                         {
                             var (candidateCategory, candidateQuestion) = GenerateDailyDouble();
                             var candidate = HostViewModel.Categories[candidateCategory]
                                 .CategoryQuestions[candidateQuestion];
-                            if (!candidate.IsDailyDouble)
+                            if (!candidate.IsDailyDouble && lastCategory != candidateCategory)
                             {
+                                lastCategory = candidateCategory;
                                 candidate.IsDailyDouble = true;
                                 assignedDailyDoubles++;
                             }
@@ -272,7 +283,7 @@ namespace Jeffparty.Client
                         CurrentQuestion = new QuestionViewModel
                         {
                             AnswerText = FinalJeopardyAnswer, IsAsked = false, IsDailyDouble = false, PointValue = 0,
-                            QuestionText = FinalJeopardyQuestion
+                            QuestionText = $"{FinalJeopardyCategory}: {FinalJeopardyQuestion}"
                         };
                         // TODO
                     }

@@ -1,4 +1,5 @@
-﻿using Jeffparty.Interfaces;
+﻿using Jeffparty.Client.Commands;
+using Jeffparty.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Jeffparty.Client
@@ -50,11 +51,12 @@ namespace Jeffparty.Client
             PersistedSettings = settings;
             settings.MainWindow = this;
 
-            ContestantsViewModel = new ContestantsViewModel {ShowWagerColumn = IsHost};
+            ContestantsViewModel = new ContestantsViewModel {IsHost = IsHost};
             
             if (IsHost)
             {
                 HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
+                ContestantsViewModel.AdminSetScore = new AdminSetScore(HostViewModel.GameManager);
             }
             else
             {

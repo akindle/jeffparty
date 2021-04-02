@@ -211,6 +211,7 @@ namespace Jeffparty.Client
                 {
                     target.Score = source.Score;
                     target.PlayerName = source.Name;
+                    target.IsBuzzed = source.IsBuzzedIn;
                 }
             }
 
