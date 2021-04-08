@@ -122,11 +122,9 @@ namespace Jeffparty.Client
             if (QuestionTimeRemaining.TotalSeconds <= 0)
             {
                 _logger.LogDebug("Question timer expired");
-                QuestionTimer.Stop();
                 CanBuzzIn = false;
                 await Server.RequestPlayAudio(AudioClips.Timeout);
-                QuestionTimeRemaining = default;
-                AskQuestionCommand.NotifyExecutabilityChanged();
+                await AdvanceState();
             }
             else
             {
