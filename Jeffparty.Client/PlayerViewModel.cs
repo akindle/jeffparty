@@ -65,6 +65,8 @@ namespace Jeffparty.Client
         private uint? _wager;
         private string? _buzzedInPlayer;
         private string _finalJeopardyAnswer;
+        private bool _isWagerVisible;
+        private bool _isFinalJeopardy;
 
         public string ActiveQuestion { get; set; }
 
@@ -72,9 +74,42 @@ namespace Jeffparty.Client
 
         public TimeSpan QuestionTimeRemaining { get; set; }
 
-        public bool IsWagerVisible { get; set; }
+        public bool IsWagerVisible
+        {
+            get => _isWagerVisible;
+            set
+            {
+                if (_isWagerVisible != value)
+                {
+                    _isWagerVisible = value;
+                    if (value)
+                    {
+                        Wager = null;
+                    }
 
-        public bool IsFinalJeopardy { get; set; }
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsFinalJeopardy
+        {
+            get => _isFinalJeopardy;
+            set
+            {
+                if (_isFinalJeopardy != value)
+                {
+                    _isFinalJeopardy = value;
+                    if (value)
+                    {
+                        Wager = null;
+                    }
+
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string FinalJeopardyCategory { get; set; }
 
         public PersistedSettings Settings { get; set; }
@@ -99,17 +134,17 @@ namespace Jeffparty.Client
                     throw new ArgumentException("Wager missing");
                 }
                 
-                if (IsDoubleJeopardy && value > Math.Max(2000, Self?.Score ?? 0))
+                if (IsDoubleJeopardy && value >= Math.Max(2000, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
-
-                if (IsFinalJeopardy && value > Math.Max(0, Self?.Score ?? 0))
+                
+                if (IsFinalJeopardy && value >= Math.Max(0, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
-
-                if (value > Math.Max(1000, Self?.Score ?? 0))
+                
+                if (!IsDoubleJeopardy && !IsFinalJeopardy && value >= Math.Max(1000, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
@@ -188,6 +223,7 @@ namespace Jeffparty.Client
             IsQuestionVisible = newState.ShouldShowQuestion;
             IsDoubleJeopardy = newState.IsDoubleJeopardy;
             IsFinalJeopardy = newState.IsFinalJeopardy;
+            
             FinalJeopardyCategory = newState.FinalJeopardyCategory ?? string.Empty;
             var newCategories = new List<PlayerCategoryViewModel>();
             foreach (var (target, source) in GameboardCategories.Zip(newState.Categories))
