@@ -100,6 +100,10 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <StackPanel Width="400" HorizontalAlignment="Left">
+                <Button
+                    Command="{Binding BuzzInCommand}"
+                    CommandParameter="{Binding}"
+                    Content="Buzzer" />
                 <TextBlock
                     Width="400"
                     MinHeight="100"
@@ -115,10 +119,6 @@
                 <TextBlock >
                     <Run Text="{Binding BuzzedInPlayerDisplayString, Mode=OneWay}" FontSize="24"/>
                 </TextBlock>
-                <Button
-                    Command="{Binding BuzzInCommand}"
-                    CommandParameter="{Binding}"
-                    Content="Buzzer" />
             </StackPanel>
             <Grid Visibility="{Binding IsWagerVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid.RowDefinitions>
