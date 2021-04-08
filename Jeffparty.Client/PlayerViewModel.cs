@@ -212,7 +212,7 @@ namespace Jeffparty.Client
 
         public void Update(GameState newState)
         {
-            ActiveQuestion = newState.CurrentQuestion;
+            ActiveQuestion = $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
 
             BuzzedInPlayer =
@@ -229,6 +229,7 @@ namespace Jeffparty.Client
             foreach (var (target, source) in GameboardCategories.Zip(newState.Categories))
             {
                 target.CategoryTitle = source.CategoryTitle;
+                target.IsActiveCategory = target.CategoryTitle == newState.QuestionCategory;
                 var i = 1;
                 foreach (var (tq, sq) in target.CategoryValues.Zip(source.AvailableQuestions))
                 {

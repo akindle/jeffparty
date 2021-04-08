@@ -96,6 +96,7 @@ namespace Jeffparty.Client
             return new GameState
             {
                 CurrentQuestion = IsFinalJeopardy ? FinalJeopardyQuestion : CurrentQuestion.QuestionText,
+                QuestionCategory =  IsFinalJeopardy ? FinalJeopardyCategory : HostViewModel.Categories.First(category => category.CategoryQuestions.Any(question => question == CurrentQuestion)).CategoryHeader,
                 Categories = HostViewModel.Categories.Select(cat => new Category
                 {
                     CategoryTitle = cat.CategoryHeader,

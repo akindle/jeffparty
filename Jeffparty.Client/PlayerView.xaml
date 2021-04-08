@@ -55,6 +55,16 @@
                                     FontWeight="Bold"
                                     Text="{Binding CategoryTitle}"
                                     TextWrapping="Wrap" />
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="BorderBrush" Value="Blue"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActiveCategory}" Value="True">
+                                                <Setter Property="BorderBrush" Value="MediumBlue"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                             </Border>
                             <ItemsControl ItemsSource="{Binding CategoryValues}">
                                 <ItemsControl.ItemTemplate>

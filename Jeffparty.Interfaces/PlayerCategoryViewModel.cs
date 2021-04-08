@@ -16,6 +16,8 @@ namespace Jeffparty.Interfaces
             get;
             set;
         }
+        
+        public bool IsActiveCategory { get; set; }
 
         public PlayerCategoryViewModel(string title, int baseValue)
         {

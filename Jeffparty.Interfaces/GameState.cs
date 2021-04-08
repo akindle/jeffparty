@@ -24,6 +24,8 @@ namespace Jeffparty.Interfaces
     public readonly struct GameState
     {
         public string CurrentQuestion { get; init; }
+        
+        public string QuestionCategory { get; init; }
 
         public List<Category> Categories { get; init; }
 
