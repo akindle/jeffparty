@@ -134,17 +134,17 @@ namespace Jeffparty.Client
                     throw new ArgumentException("Wager missing");
                 }
                 
-                if (IsDoubleJeopardy && value >= Math.Max(2000, Self?.Score ?? 0))
+                if (IsDoubleJeopardy && value > Math.Max(2000, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
                 
-                if (IsFinalJeopardy && value >= Math.Max(0, Self?.Score ?? 0))
+                if (IsFinalJeopardy && value > Math.Max(0, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
                 
-                if (!IsDoubleJeopardy && !IsFinalJeopardy && value >= Math.Max(1000, Self?.Score ?? 0))
+                if (!IsDoubleJeopardy && !IsFinalJeopardy && value > Math.Max(1000, Self?.Score ?? 0))
                 {
                     throw new ArgumentException("Wager too high");
                 }
