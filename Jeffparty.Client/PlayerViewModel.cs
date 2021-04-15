@@ -1,72 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
-using System.Windows.Controls;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Jeffparty.Client
 {
-    public class WagerValidator : ValidationRule
-    {
-        private readonly PlayerViewModel _player;
-
-        public WagerValidator(PlayerViewModel player)
-        {
-            _player = player;
-        }
-
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
-        {
-            if (value is int i || (value is string str && int.TryParse(str, out i)))
-            {
-                if (i < 0)
-                {
-                    return new ValidationResult(false, "Wager is below 0");
-                }
-
-                if (_player.IsDoubleJeopardy)
-                {
-                    if (i < Math.Max(2000, _player.Self?.Score ?? 0))
-                    {
-                        return ValidationResult.ValidResult;
-                    }
-
-                    return new ValidationResult(false, "Wager too high");
-                }
-
-                if (_player.IsFinalJeopardy)
-                {
-                    if (i < Math.Max(0, _player.Self?.Score ?? 0))
-                    {
-                        return ValidationResult.ValidResult;
-                    }
-
-                    return new ValidationResult(false, "Wager too high");
-                }
-
-                if (i < Math.Max(1000, _player.Self?.Score ?? 0))
-                {
-                    return ValidationResult.ValidResult;
-                }
-
-                return new ValidationResult(false, "Wager too high");
-            }
-
-            return new ValidationResult(false, "Not a number");
-        }
-    }
-
     public class PlayerViewModel : Notifier
     {
         private readonly ContestantsViewModel _contestantsViewModel;
-        private uint? _wager;
+        private readonly ILogger _logger;
         private string? _buzzedInPlayer;
         private string _finalJeopardyAnswer;
-        private bool _isWagerVisible;
         private bool _isFinalJeopardy;
+        private bool _isWagerVisible;
+        private uint? _wager;
+
+        public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
+            ContestantsViewModel contestantsViewModel)
+        {
+            _logger = MainWindow.LogFactory.CreateLogger(nameof(PlayerViewModel));
+            _finalJeopardyAnswer = string.Empty;
+            _contestantsViewModel = contestantsViewModel;
+            Settings = settings;
+
+            GameboardCategories = new List<PlayerCategoryViewModel>
+            {
+                new("Placeholder", 200),
+                new("Placeholder", 200),
+                new("Placeholder", 200),
+                new("Placeholder", 200),
+                new("Placeholder", 200),
+                new("Placeholder", 200)
+            };
+
+            ActiveQuestion = "No question selected";
+            FinalJeopardyCategory = string.Empty;
+            BuzzInCommand = new BuzzIn(settings.Guid, Server);
+            SubmitWager = new SubmitWager(this, Server);
+            SubmitFinalJeopardy = new SubmitFinalJeopardy(this, Server);
+        }
 
         public string ActiveQuestion { get; set; }
 
@@ -82,10 +56,7 @@ namespace Jeffparty.Client
                 if (_isWagerVisible != value)
                 {
                     _isWagerVisible = value;
-                    if (value)
-                    {
-                        Wager = null;
-                    }
+                    if (value) Wager = null;
 
                     OnPropertyChanged();
                 }
@@ -100,10 +71,7 @@ namespace Jeffparty.Client
                 if (_isFinalJeopardy != value)
                 {
                     _isFinalJeopardy = value;
-                    if (value)
-                    {
-                        Wager = null;
-                    }
+                    if (value) Wager = null;
 
                     OnPropertyChanged();
                 }
@@ -115,13 +83,13 @@ namespace Jeffparty.Client
         public PersistedSettings Settings { get; set; }
 
         public BuzzIn BuzzInCommand { get; }
-        
+
         public bool CanBuzzIn { get; set; }
 
         public bool IsBuzzedIn { get; set; }
 
         public SubmitWager SubmitWager { get; set; }
-        
+
         public SubmitFinalJeopardy SubmitFinalJeopardy { get; set; }
 
         public uint? Wager
@@ -166,32 +134,9 @@ namespace Jeffparty.Client
             }
         }
 
-        public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
-            ContestantsViewModel contestantsViewModel)
-        {
-            _finalJeopardyAnswer = string.Empty;
-            _contestantsViewModel = contestantsViewModel;
-            Settings = settings;
-
-            GameboardCategories = new List<PlayerCategoryViewModel>
-            {
-                new("Placeholder", 200),
-                new("Placeholder", 200),
-                new("Placeholder", 200),
-                new("Placeholder", 200),
-                new("Placeholder", 200),
-                new("Placeholder", 200)
-            };
-
-            ActiveQuestion = "No question selected";
-            FinalJeopardyCategory = string.Empty;
-            BuzzInCommand = new BuzzIn(settings.Guid, Server);
-            SubmitWager = new SubmitWager(this, Server);
-            SubmitFinalJeopardy = new SubmitFinalJeopardy(this, Server);
-        }
-
         public void Update(GameState newState)
         {
+            _logger.Trace(newState.ToString());
             ActiveQuestion = $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
 
@@ -203,7 +148,7 @@ namespace Jeffparty.Client
             IsQuestionVisible = newState.ShouldShowQuestion;
             IsDoubleJeopardy = newState.IsDoubleJeopardy;
             IsFinalJeopardy = newState.IsFinalJeopardy;
-            
+
             FinalJeopardyCategory = newState.FinalJeopardyCategory ?? string.Empty;
             var newCategories = new List<PlayerCategoryViewModel>();
             foreach (var (target, source) in GameboardCategories.Zip(newState.Categories))
@@ -222,7 +167,6 @@ namespace Jeffparty.Client
             }
 
             foreach (var source in newState.Contestants)
-            {
                 if (_contestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == source.Guid) is
                     { } target)
                 {
@@ -230,7 +174,6 @@ namespace Jeffparty.Client
                     target.PlayerName = source.Name;
                     target.IsBuzzed = source.IsBuzzedIn;
                 }
-            }
 
             IsBuzzedIn = Settings.Guid == newState.BuzzedInPlayerId;
             GameboardCategories = newCategories;

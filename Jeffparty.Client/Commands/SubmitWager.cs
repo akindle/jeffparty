@@ -28,14 +28,11 @@ namespace Jeffparty.Client.Commands
 
         public override async void Execute(object? parameter)
         {
-            if (_playerView.Wager == null)
-            {
-                return;
-            }
-            
+            if (_playerView.Wager == null) return;
+
             _hasWagered = true;
-            _playerView.IsQuestionVisible = true;
-            await _server.SubmitWager(_playerView.Settings.Guid, (int)_playerView.Wager);
+            _playerView.IsQuestionVisible = !_playerView.IsFinalJeopardy;
+            await _server.SubmitWager(_playerView.Settings.Guid, (int) _playerView.Wager);
             NotifyExecutabilityChanged();
         }
     }

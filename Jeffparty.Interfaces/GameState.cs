@@ -44,5 +44,11 @@ namespace Jeffparty.Interfaces
         public string? FinalJeopardyCategory { get; init; }
         public Guid BuzzedInPlayerId { get; init; }
         public bool ShouldShowQuestion { get; init; }
+
+        public override string ToString()
+        {
+            return
+                $"CurrentQuestion = \"{CurrentQuestion}\", QuestionCategory = \"{QuestionCategory}\", Categories = \"{Categories}\", Contestants = \"{Contestants}\", QuestionTimeRemainingSeconds = \"{QuestionTimeRemainingSeconds}\", CanBuzzIn = \"{CanBuzzIn}\", PlayerWithDailyDouble = \"{PlayerWithDailyDouble}\", IsDoubleJeopardy = \"{IsDoubleJeopardy}\", IsFinalJeopardy = \"{IsFinalJeopardy}\", FinalJeopardyCategory = \"{FinalJeopardyCategory}\", BuzzedInPlayerId = \"{BuzzedInPlayerId}\", ShouldShowQuestion = \"{ShouldShowQuestion}\"";
+        }
     }
 }
