@@ -12,10 +12,10 @@
             <ItemsControl ItemsSource="{Binding Categories}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type local:CategoryViewModel}">
-                        <StackPanel Width="175">
-                            <Border BorderBrush="Blue" BorderThickness="4">
+                        <StackPanel Width="225">
+                            <Border BorderBrush="Blue" BorderThickness="2">
                                 <TextBlock
-                                    MinHeight="84"
+                                    MinHeight="56"
                                     FontWeight="Bold"
                                     Text="{Binding CategoryHeader}"
                                     TextWrapping="Wrap" />
@@ -24,10 +24,10 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:QuestionViewModel}">
                                         <Button
-                                            MinHeight="175"
+                                            MinHeight="132"
                                             HorizontalContentAlignment="Left"
                                             VerticalContentAlignment="Top"
-                                            BorderThickness="4"
+                                            BorderThickness="2"
                                             Command="{Binding DataContext.GameManager.AskQuestionCommand, RelativeSource={RelativeSource AncestorType=local:HostView}}"
                                             CommandParameter="{Binding}">
                                             <Button.Style>
@@ -54,7 +54,7 @@
                                                     Text="{Binding QuestionText}"
                                                     TextWrapping="Wrap" />
                                                 <TextBlock
-                                                    Margin="10"
+                                                    Margin="5"
                                                     FontSize="14"
                                                     FontStyle="Italic"
                                                     Text="{Binding AnswerText}"
