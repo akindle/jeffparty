@@ -129,26 +129,6 @@ namespace Jeffparty.Client
             get => _wager;
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentException("Wager missing");
-                }
-                
-                if (IsDoubleJeopardy && value > Math.Max(2000, Self?.Score ?? 0))
-                {
-                    throw new ArgumentException("Wager too high");
-                }
-                
-                if (IsFinalJeopardy && value > Math.Max(0, Self?.Score ?? 0))
-                {
-                    throw new ArgumentException("Wager too high");
-                }
-                
-                if (!IsDoubleJeopardy && !IsFinalJeopardy && value > Math.Max(1000, Self?.Score ?? 0))
-                {
-                    throw new ArgumentException("Wager too high");
-                }
-
                 SubmitWager.NotifyExecutabilityChanged();
                 _wager = value;
             }
