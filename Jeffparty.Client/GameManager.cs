@@ -144,7 +144,7 @@ namespace Jeffparty.Client
 
         public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
         {
-            _logger.Trace();
+            _logger.Trace(buzzingPlayer.ToString());
             if (AnswerCommand.CanExecute(null))
             {
                 return;

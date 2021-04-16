@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Threading;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -142,6 +143,7 @@ namespace Jeffparty.Client
         public void Update(GameState newState)
         {
             _logger.Trace(newState.ToString());
+            _logger.Trace($"Update start: {this}");
             ActiveQuestion = $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
 
@@ -172,6 +174,7 @@ namespace Jeffparty.Client
             }
 
             foreach (var source in newState.Contestants)
+            {
                 if (_contestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == source.Guid) is
                     { } target)
                 {
@@ -179,11 +182,18 @@ namespace Jeffparty.Client
                     target.PlayerName = source.Name;
                     target.IsBuzzed = source.IsBuzzedIn;
                 }
+            }
 
             IsBuzzedIn = Settings.Guid == newState.BuzzedInPlayerId;
             GameboardCategories = newCategories;
             BuzzInCommand.CanBuzzIn = newState.CanBuzzIn;
             CanBuzzIn = newState.CanBuzzIn;
+            _logger.Trace($"Update end: {this}");
+        }
+
+        public override string ToString()
+        {
+            return $"ActiveQuestion = \"{ActiveQuestion}\", GameboardCategories = \"{GameboardCategories}\", QuestionTimeRemaining = \"{QuestionTimeRemaining}\", IsWagerVisible = \"{IsWagerVisible}\", IsFinalJeopardy = \"{IsFinalJeopardy}\", FinalJeopardyCategory = \"{FinalJeopardyCategory}\", Settings = \"{Settings}\", BuzzInCommand = \"{BuzzInCommand}\", CanBuzzIn = \"{CanBuzzIn}\", IsBuzzedIn = \"{IsBuzzedIn}\", SubmitWager = \"{SubmitWager}\", SubmitFinalJeopardy = \"{SubmitFinalJeopardy}\", Wager = \"{Wager}\", IsQuestionVisible = \"{IsQuestionVisible}\", BuzzedInPlayer = \"{BuzzedInPlayer}\", IsDoubleJeopardy = \"{IsDoubleJeopardy}\", Self = \"{Self}\", BuzzedInPlayerDisplayString = \"{BuzzedInPlayerDisplayString}\", FinalJeopardyAnswer = \"{FinalJeopardyAnswer}\"";
         }
     }
 }
