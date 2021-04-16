@@ -27,21 +27,20 @@ namespace Jeffparty.Client.Commands
         {
             if (parameter is QuestionViewModel question)
             {
-                question.IsAsked = true;
-                game.CurrentQuestion = question;
-
-                if (question.IsDailyDouble)
+                if (question.IsDailyDouble && game.LastCorrectPlayer != null && game.LastCorrectPlayer.Guid != Guid.Empty)
                 {
                     await game.Server.RequestPlayAudio(AudioClips.Airhorn);
                     game.PlayerWithDailyDouble = game.LastCorrectPlayer?.Guid ?? Guid.Empty;
-                    game.BuzzedInPlayer =
-                        game.ContestantsViewModel.Contestants.FirstOrDefault(c => c.Guid == game.PlayerWithDailyDouble);
+                    game.BuzzedInPlayer = game.LastCorrectPlayer;
                     game.ShouldShowQuestion = false;
                 }
                 else
                 {
                     game.ShouldShowQuestion = true;
                 }
+                
+                question.IsAsked = true;
+                game.CurrentQuestion = question;
             }
             
             await game.PropagateGameState().ConfigureAwait(true);

@@ -56,8 +56,6 @@ namespace Jeffparty.Client
         }
 
 
-        public GameState GameState => SnapshotGameState();
-
         public ReplaceCategory ReplaceCategory { get; }
 
         public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants,
@@ -139,8 +137,9 @@ namespace Jeffparty.Client
 
         public async Task PropagateGameState()
         {
-            _logger.Trace();
-            await Server.PropagateGameState(GameState);
+            var state = SnapshotGameState();
+            _logger.Trace(state.ToString());
+            await Server.PropagateGameState(state);
         }
 
         public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
