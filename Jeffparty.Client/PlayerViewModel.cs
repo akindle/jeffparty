@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Threading;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
+using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Jeffparty.Client
@@ -21,7 +21,7 @@ namespace Jeffparty.Client
         public PlayerViewModel(PersistedSettings settings, IMessageHub Server,
             ContestantsViewModel contestantsViewModel)
         {
-            _logger = MainWindow.LogFactory.CreateLogger(nameof(PlayerViewModel));
+            _logger = MainWindow.LogFactory.CreateLogger<PlayerViewModel>();
             _finalJeopardyAnswer = string.Empty;
             _contestantsViewModel = contestantsViewModel;
             Settings = settings;
