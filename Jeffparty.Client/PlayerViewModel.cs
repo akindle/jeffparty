@@ -40,6 +40,11 @@ namespace Jeffparty.Client
             BuzzInCommand = new BuzzIn(settings.Guid, Server);
             SubmitWager = new SubmitWager(this, Server);
             SubmitFinalJeopardy = new SubmitFinalJeopardy(this, Server);
+            
+            PropertyChanged += (sender, args) =>
+            {
+                _logger.Trace($"{sender}: PropertyName: \"{args.PropertyName}\"");
+            }
         }
 
         public string ActiveQuestion { get; set; }
