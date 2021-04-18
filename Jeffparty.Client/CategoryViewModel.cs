@@ -45,6 +45,16 @@ namespace Jeffparty.Client
                     }
                 } while (shouldLoop);
 
+                foreach (var path in UsedPaths)
+                {
+                    try
+                    {
+                        File.Delete(path);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
                 return result;
             }
             catch

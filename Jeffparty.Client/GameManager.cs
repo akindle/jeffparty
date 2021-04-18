@@ -269,12 +269,20 @@ namespace Jeffparty.Client
                         _logger.LogDebug("Advancing to final jeopardy");
                         IsFinalJeopardy = true;
                         ShouldShowQuestion = false;
+                        var rootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Categories");
                         var finaljs = Directory
-                            .EnumerateFiles(@"C:\Users\AlexKindle\source\repos\TurdFerguson\venv\categories")
+                            .EnumerateFiles(rootDirectory)
                             .Where(fileName => fileName.Contains("finalj")).ToList();
                         var random = new Random();
                         var finalj = finaljs[random.Next(finaljs.Count)];
                         var fj = File.ReadAllLines(finalj);
+                        try
+                        {
+                            File.Delete(finalj);
+                        }
+                        catch (Exception)
+                        {
+                        }
                         FinalJeopardyCategory = CategoryViewModel.CleanUpString(fj[0]);
                         FinalJeopardyQuestion = CategoryViewModel.CleanUpString(fj[1]);
                         FinalJeopardyAnswer = CategoryViewModel.CleanUpString(fj[2]);
