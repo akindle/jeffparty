@@ -109,7 +109,8 @@ namespace Jeffparty.Client
                 IsFinalJeopardy = IsFinalJeopardy,
                 FinalJeopardyCategory = FinalJeopardyCategory,
                 BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty,
-                ShouldShowQuestion = ShouldShowQuestion
+                ShouldShowQuestion = ShouldShowQuestion,
+                BoardController = LastCorrectPlayer?.PlayerName ?? string.Empty
             };
         }
 

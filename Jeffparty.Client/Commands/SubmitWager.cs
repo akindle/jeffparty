@@ -1,4 +1,5 @@
-﻿using Jeffparty.Interfaces;
+﻿using System;
+using Jeffparty.Interfaces;
 
 namespace Jeffparty.Client.Commands
 {
@@ -23,7 +24,7 @@ namespace Jeffparty.Client.Commands
         
         public override bool CanExecute(object? parameter)
         {
-            return _playerView.IsWagerVisible && !_hasWagered && _playerView.Wager != null;
+            return _playerView.IsWagerVisible && !_hasWagered && _playerView.Wager != null && _playerView.Wager <= _playerView.MaximumWager;
         }
 
         public override async void Execute(object? parameter)
@@ -32,7 +33,7 @@ namespace Jeffparty.Client.Commands
 
             _hasWagered = true;
             _playerView.IsQuestionVisible = !_playerView.IsFinalJeopardy;
-            await _server.SubmitWager(_playerView.Settings.Guid, (int) _playerView.Wager);
+            await _server.SubmitWager(_playerView.Settings.Guid, (int) Math.Max(_playerView.Wager.Value, _playerView.MaximumWager));
             NotifyExecutabilityChanged();
         }
     }

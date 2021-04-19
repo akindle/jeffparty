@@ -44,6 +44,7 @@ namespace Jeffparty.Interfaces
         public string? FinalJeopardyCategory { get; init; }
         public Guid BuzzedInPlayerId { get; init; }
         public bool ShouldShowQuestion { get; init; }
+        public string BoardController { get; init; }
 
         public override string ToString()
         {

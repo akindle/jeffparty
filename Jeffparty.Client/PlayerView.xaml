@@ -147,13 +147,13 @@
                 <TextBlock
                     Grid.Row="2"
                     Grid.Column="0"
-                    Text="Wager:" />
+                    Text="{Binding MaximumWager, Mode=OneWay, StringFormat=Wager (up to {0}):}" />
                 <TextBox
                     Grid.Row="2"
                     Grid.Column="1"
                     FontSize="16"
                     MinWidth="75"
-                    Text="{Binding Wager, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                    Text="{Binding Wager, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button
                     Grid.Row="3"
                     Grid.Column="0"
@@ -181,5 +181,9 @@
                     Visibility="{Binding IsFinalJeopardy, Converter={StaticResource BooleanToVisibilityConverter}}" />
             </Grid>
         </StackPanel>
+        <TextBlock>
+            <Run Text="Board controlled by: "/>
+            <Run Text="{Binding BoardControllerText}" />
+        </TextBlock>
     </StackPanel>
 </UserControl>

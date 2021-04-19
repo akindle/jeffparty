@@ -65,6 +65,7 @@ namespace Jeffparty.Client
                     if (value) Wager = null;
 
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(MaximumWager));
                 }
             }
         }
@@ -140,10 +141,19 @@ namespace Jeffparty.Client
             }
         }
 
+        public string BoardControllerText
+        {
+            get;
+            set;
+        } = "Unknown";
+
+        public uint MaximumWager => (uint)(Math.Abs(Self?.Score ?? 0) + 2000);
+
         public void Update(GameState newState)
         {
             _logger.Trace(newState.ToString());
             _logger.Trace($"Update start: {this}");
+            BoardControllerText = string.IsNullOrEmpty(newState.BoardController) ? "Unknown" : newState.BoardController;
             ActiveQuestion = $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
 
