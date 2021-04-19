@@ -79,6 +79,7 @@ namespace Jeffparty.Client.Commands
                             _game.BuzzedInPlayer = null;
                             _game.CanBuzzIn = true;
                             _game.LastQuestionFiring = DateTime.Now;
+                            _game.LikelyCurrentGameState = GameManager.GameStates.WaitingForBuzzes;
                             _game.QuestionTimer.Start();
                             await _game.PropagateGameState();
                         }

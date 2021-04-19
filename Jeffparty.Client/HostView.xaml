@@ -100,5 +100,6 @@
             <Button Content="Correct" Command="{Binding GameManager.AnswerCommand}" CommandParameter="True" />
             <Button Content="Incorrect" Command="{Binding GameManager.AnswerCommand}" CommandParameter="False" />
         </StackPanel>
+        <TextBlock Text="{Binding GameManager.LikelyCurrentGameState, StringFormat=Likely current game state (debug info): {0}}" />
     </StackPanel>
 </UserControl>

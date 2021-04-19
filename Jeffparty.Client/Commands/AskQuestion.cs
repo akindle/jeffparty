@@ -30,13 +30,15 @@ namespace Jeffparty.Client.Commands
                 if (question.IsDailyDouble && game.LastCorrectPlayer != null && game.LastCorrectPlayer.Guid != Guid.Empty)
                 {
                     await game.Server.RequestPlayAudio(AudioClips.Airhorn);
-                    game.PlayerWithDailyDouble = game.LastCorrectPlayer?.Guid ?? Guid.Empty;
+                    game.PlayerWithDailyDouble = game.LastCorrectPlayer.Guid;
                     game.BuzzedInPlayer = game.LastCorrectPlayer;
                     game.ShouldShowQuestion = false;
+                    game.LikelyCurrentGameState = GameManager.GameStates.Wagering;
                 }
                 else
                 {
                     game.ShouldShowQuestion = true;
+                    game.LikelyCurrentGameState = GameManager.GameStates.ReadingQuestion;
                 }
                 
                 question.IsAsked = true;

@@ -35,14 +35,12 @@ namespace Jeffparty.Client
             set;
         }
         
-        public GradeFinalJeopardyCommand CorrectFinalJeopardy { get; }
-        public GradeFinalJeopardyCommand IncorrectFinalJeopardy { get; }
+        public GradeFinalJeopardyCommand? CorrectFinalJeopardy { get; set; }
+        public GradeFinalJeopardyCommand? IncorrectFinalJeopardy { get; set; }
 
         public ContestantsViewModel()
         {
             _logger = MainWindow.LogFactory.CreateLogger<ContestantsViewModel>();
-            CorrectFinalJeopardy = new GradeFinalJeopardyCommand(true);
-            IncorrectFinalJeopardy = new GradeFinalJeopardyCommand(false);
             Contestants = new ObservableCollection<ContestantViewModel>();
             Contestants.CollectionChanged += ContestantsOnCollectionChanged;
         }
@@ -74,8 +72,8 @@ namespace Jeffparty.Client
             {
             }
             
-            CorrectFinalJeopardy.NotifyExecutabilityChanged();
-            IncorrectFinalJeopardy.NotifyExecutabilityChanged();
+            CorrectFinalJeopardy?.NotifyExecutabilityChanged();
+            IncorrectFinalJeopardy?.NotifyExecutabilityChanged();
         }
     }
 }

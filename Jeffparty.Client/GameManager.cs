@@ -15,6 +15,7 @@ namespace Jeffparty.Client
     {
         private ContestantViewModel? _lastCorrectPlayer;
         private ILogger<GameManager> _logger;
+        private GameStates _likelyCurrentGameState;
         public string FinalJeopardyCategory { get; set; }
         public string FinalJeopardyQuestion { get; set; }
         public string FinalJeopardyAnswer { get; set; }
@@ -157,7 +158,8 @@ namespace Jeffparty.Client
             {
                 player.IsBuzzed = false;
             }
-            
+
+            LikelyCurrentGameState = GameStates.WaitingForAnswer;
             BuzzedInPlayer.IsBuzzed = true;
             QuestionTimer.Stop();
             await PropagateGameState().ConfigureAwait(true);
@@ -179,23 +181,50 @@ namespace Jeffparty.Client
             return (dailyDoubleCategory, dailyDoubleQuestion);
         }
 
-        public enum GameStates
+        public enum GameModes
         {
             Jeff,
             DoubleJeff,
             FinalJeff
         }
 
-        public async Task AdvanceState(GameStates? forceState=null)
+        public enum GameStates
+        {
+            SelectingQuestion,
+            ReadingQuestion,
+            WaitingForBuzzes,
+            WaitingForAnswer,
+            Wagering,
+            DoingDailyDouble,
+            WageringFinalJeopardy,
+            ReadingFinalJeopardy
+        };
+
+        public GameStates LikelyCurrentGameState
+        {
+            get => _likelyCurrentGameState;
+            set
+            {
+                if (_likelyCurrentGameState != value)
+                {
+                    _logger.Log(LogLevel.Debug,
+                        $"{nameof(LikelyCurrentGameState)}: {_likelyCurrentGameState} -> {value}");
+                    _likelyCurrentGameState = value;
+                }
+            }
+        }
+
+        public async Task AdvanceState(GameModes? forceState=null)
         {
             _logger.Trace();
             BuzzedInPlayer = null;
             QuestionTimer.Stop();
             ShouldShowQuestion = false;
             QuestionTimeRemaining = default;
+            LikelyCurrentGameState = GameStates.SelectingQuestion;
             await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {
-                GameStates? targetState = forceState;
+                GameModes? targetState = forceState;
                 if (forceState != null)
                 {
                     targetState = forceState;
@@ -204,21 +233,21 @@ namespace Jeffparty.Client
                 {
                     if (!IsDoubleJeopardy && !IsFinalJeopardy)
                     {
-                        targetState = GameStates.DoubleJeff;
+                        targetState = GameModes.DoubleJeff;
                     }
                     else if (IsDoubleJeopardy && !IsFinalJeopardy)
                     {
-                        targetState = GameStates.FinalJeff;
+                        targetState = GameModes.FinalJeff;
                     }
                     else
                     {
-                        targetState = GameStates.Jeff;
+                        targetState = GameModes.Jeff;
                     }
                 }
                 
                 if(targetState != null)
                 {
-                    if (targetState == GameStates.DoubleJeff)
+                    if (targetState == GameModes.DoubleJeff)
                     {
                         _logger.LogDebug("Advancing to double jeopardy");
                         IsDoubleJeopardy = true;
@@ -265,9 +294,10 @@ namespace Jeffparty.Client
                             }
                         }
                     }
-                    else if (targetState == GameStates.FinalJeff)
+                    else if (targetState == GameModes.FinalJeff)
                     {
                         _logger.LogDebug("Advancing to final jeopardy");
+                        LikelyCurrentGameState = GameStates.WageringFinalJeopardy;
                         IsFinalJeopardy = true;
                         ShouldShowQuestion = false;
                         var rootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Categories");
@@ -294,7 +324,7 @@ namespace Jeffparty.Client
                         };
                         // TODO
                     }
-                    else if(targetState == GameStates.Jeff)
+                    else if(targetState == GameModes.Jeff)
                     {
                         _logger.LogDebug("Advancing to new game");
                         HostViewModel.Categories = new List<CategoryViewModel>
@@ -341,6 +371,7 @@ namespace Jeffparty.Client
         public bool ShouldShowQuestion { get; set; }
         public ListenForAnswers ListenForAnswersCommand { get; set; }
 
+
         public async Task PlayerWagered(ContestantViewModel contestantViewModel, int playerViewWager)
         {
             _logger.Trace();
@@ -350,10 +381,15 @@ namespace Jeffparty.Client
             {
                 ShouldShowQuestion = ContestantsViewModel.Contestants.Where(contestant => contestant.Score > 0)
                     .All(contestant => contestant.Wager != null);
+                if (ShouldShowQuestion)
+                {
+                    LikelyCurrentGameState = GameStates.ReadingFinalJeopardy;
+                }
             }
             else
             {
                 ShouldShowQuestion = true;
+                LikelyCurrentGameState = GameStates.DoingDailyDouble;
             }
 
             AskQuestionCommand.NotifyExecutabilityChanged();

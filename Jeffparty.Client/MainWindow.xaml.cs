@@ -30,6 +30,7 @@ namespace Jeffparty.Client
 
         private PersistedSettings TryLoadSettings()
         {
+            #nullable disable
             try
             {
                 var settingsPath = $"{Directory.GetCurrentDirectory()}\\settings.xml";
@@ -41,6 +42,7 @@ namespace Jeffparty.Client
                 _logger.LogInformation("Loaded settings");
                 return newSettings;
             }
+            #nullable restore
             catch (Exception e)
             {
                 _logger.LogWarning($"Settings load failed: {e}");
@@ -145,7 +147,7 @@ namespace Jeffparty.Client
         public async Task FindOrCreatePlayerData(Guid joiner, string playerName)
         {
             _logger.Trace();
-            if (!viewModel.IsHost)
+            if (!viewModel.IsHost || viewModel.HostViewModel == null)
             {
                 return;
             }
@@ -195,12 +197,10 @@ namespace Jeffparty.Client
             }
         }
 
-        private object locker = new object();
-
         public async Task NotifyPlayerWagered(Guid settingsGuid, int playerViewWager)
         {
             _logger.Trace();
-            if (!viewModel.IsHost)
+            if (!viewModel.IsHost || viewModel.HostViewModel == null)
             {
                 return;
             }

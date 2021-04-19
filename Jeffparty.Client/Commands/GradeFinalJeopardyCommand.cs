@@ -7,12 +7,14 @@ namespace Jeffparty.Client.Commands
     public class GradeFinalJeopardyCommand : CommandBase
     {
         private readonly bool _isGradingYes;
+        private readonly GameManager _gameManager;
         private readonly ILogger _logger;
 
-        public GradeFinalJeopardyCommand(bool isGradingYes)
+        public GradeFinalJeopardyCommand(GameManager gameManager, bool isGradingYes)
         {
             _logger = MainWindow.LogFactory.CreateLogger<GradeFinalJeopardyCommand>();
             _isGradingYes = isGradingYes;
+            _gameManager = gameManager;
         }
 
         public override bool CanExecute(object? parameter)
@@ -27,7 +29,7 @@ namespace Jeffparty.Client.Commands
             return false;
         }
 
-        public override void Execute(object? parameter)
+        public override async void Execute(object? parameter)
         {
             _logger.Trace();
             _logger.LogDebug($"Execute parameter {parameter}");
@@ -41,6 +43,8 @@ namespace Jeffparty.Client.Commands
                 {
                     contestant.Score -= contestant.Wager ?? 0;
                 }
+
+                await _gameManager.PropagateGameState();
             }
         }
     }

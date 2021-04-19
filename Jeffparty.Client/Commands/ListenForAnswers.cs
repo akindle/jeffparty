@@ -20,6 +20,7 @@ namespace Jeffparty.Client.Commands
         {
             _game.QuestionTimeRemaining = TimeSpan.FromSeconds(7.5);
             _game.LastQuestionFiring = DateTime.Now;
+            _game.LikelyCurrentGameState = GameManager.GameStates.WaitingForBuzzes;
             _game.QuestionTimer.Start();
         }
     }

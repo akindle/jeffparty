@@ -57,6 +57,8 @@ namespace Jeffparty.Client
             {
                 HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
                 ContestantsViewModel.AdminSetScore = new AdminSetScore(HostViewModel.GameManager);
+                ContestantsViewModel.CorrectFinalJeopardy = new GradeFinalJeopardyCommand(HostViewModel.GameManager, true);
+                ContestantsViewModel.IncorrectFinalJeopardy = new GradeFinalJeopardyCommand(HostViewModel.GameManager, false);
             }
             else
             {
