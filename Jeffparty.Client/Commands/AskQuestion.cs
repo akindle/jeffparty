@@ -25,6 +25,11 @@ namespace Jeffparty.Client.Commands
 
         public override async void Execute(object? parameter)
         {
+            foreach (var contestant in game.ContestantsViewModel.Contestants)
+            {
+                contestant.IsBuzzed = false;
+            }
+            
             if (parameter is QuestionViewModel question)
             {
                 if (question.IsDailyDouble && game.LastCorrectPlayer != null && game.LastCorrectPlayer.Guid != Guid.Empty)

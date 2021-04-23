@@ -147,6 +147,7 @@ namespace Jeffparty.Client
         public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
         {
             _logger.Trace(buzzingPlayer.ToString());
+            QuestionTimer.Stop();
             if (AnswerCommand.CanExecute(null))
             {
                 return;
@@ -161,7 +162,6 @@ namespace Jeffparty.Client
 
             LikelyCurrentGameState = GameStates.WaitingForAnswer;
             BuzzedInPlayer.IsBuzzed = true;
-            QuestionTimer.Stop();
             await PropagateGameState().ConfigureAwait(true);
             AnswerCommand.NotifyExecutabilityChanged();
         }

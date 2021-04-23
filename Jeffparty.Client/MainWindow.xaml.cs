@@ -174,7 +174,7 @@ namespace Jeffparty.Client
 
         public async Task NotifyPlayerBuzzed(Guid buzzingPlayer, double timerSecondsAtBuzz)
         {
-            _logger.Trace();
+            _logger.Trace(buzzingPlayer.ToString());
             if (viewModel.ContestantsViewModel.Contestants.Any(contestant => contestant.IsBuzzed))
             {
                 return;
@@ -183,6 +183,7 @@ namespace Jeffparty.Client
             var p =
                 viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
                     contestant => contestant.Guid == buzzingPlayer);
+            _logger.Trace(p?.ToString() ?? "player wasn't found");
             if (p != null)
             {
                 AudioPlaybackEngine.Instance.PlaySound("./Sounds/buzz.mp3");
