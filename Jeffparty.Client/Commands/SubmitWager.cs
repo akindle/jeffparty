@@ -33,7 +33,7 @@ namespace Jeffparty.Client.Commands
 
             _hasWagered = true;
             _playerView.IsQuestionVisible = !_playerView.IsFinalJeopardy;
-            await _server.SubmitWager(_playerView.Settings.Guid, (int) Math.Max(_playerView.Wager.Value, _playerView.MaximumWager));
+            await _server.SubmitWager(_playerView.Settings.Guid, (int) Math.Min(_playerView.Wager.Value, _playerView.MaximumWager));
             NotifyExecutabilityChanged();
         }
     }
