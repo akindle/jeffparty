@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Windows.Threading;
@@ -95,14 +96,21 @@ namespace Jeffparty.Client
             return new GameState
             {
                 CurrentQuestion = IsFinalJeopardy ? FinalJeopardyQuestion : CurrentQuestion.QuestionText,
-                QuestionCategory =  IsFinalJeopardy ? FinalJeopardyCategory : HostViewModel.Categories.FirstOrDefault(category => category.CategoryQuestions.Any(question => question == CurrentQuestion))?.CategoryHeader ?? string.Empty,
+                QuestionCategory = IsFinalJeopardy
+                    ? FinalJeopardyCategory
+                    : HostViewModel.Categories.FirstOrDefault(category =>
+                          category.CategoryQuestions.Any(question => question == CurrentQuestion))?.CategoryHeader ??
+                      string.Empty,
                 Categories = HostViewModel.Categories.Select(cat => new Category
                 {
                     CategoryTitle = cat.CategoryHeader,
                     AvailableQuestions = cat.CategoryQuestions.Select(q => !q.IsAsked).ToList()
                 }).ToList(),
                 Contestants = ContestantsViewModel.Contestants.Select(contestant => new Contestant
-                    {Name = contestant.PlayerName, Score = contestant.Score, Guid = contestant.Guid, IsBuzzedIn = contestant.IsBuzzed}).ToList(),
+                {
+                    Name = contestant.PlayerName, Score = contestant.Score, Guid = contestant.Guid,
+                    IsBuzzedIn = contestant.IsBuzzed
+                }).ToList(),
                 QuestionTimeRemainingSeconds = QuestionTimeRemaining.TotalSeconds,
                 CanBuzzIn = CanBuzzIn,
                 PlayerWithDailyDouble = PlayerWithDailyDouble,
@@ -122,6 +130,7 @@ namespace Jeffparty.Client
             LastQuestionFiring = DateTime.Now;
             if (QuestionTimeRemaining.TotalSeconds <= 0)
             {
+                DisableBuzzProcessing();
                 _logger.LogDebug("Question timer expired");
                 CanBuzzIn = false;
                 await Server.RequestPlayAudio(AudioClips.Timeout);
@@ -129,6 +138,7 @@ namespace Jeffparty.Client
             }
             else
             {
+                EnableBuzzProcessing();
                 CanBuzzIn = true;
             }
 
@@ -144,26 +154,37 @@ namespace Jeffparty.Client
             await Server.PropagateGameState(state);
         }
 
-        public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
+        private int processingBuzz = 1;
+
+        public void EnableBuzzProcessing()
+        {
+            processingBuzz = 0;
+        }
+
+        public void DisableBuzzProcessing()
+        {
+            processingBuzz = 1;
+        }
+
+    public async Task PlayerBuzzed(ContestantViewModel buzzingPlayer, double timerSecondsAtBuzz)
         {
             _logger.Trace(buzzingPlayer.ToString());
-            QuestionTimer.Stop();
-            if (AnswerCommand.CanExecute(null))
+            if (Interlocked.CompareExchange(ref processingBuzz, 1, 0) == 0)
             {
-                return;
-            }
-            
-            CanBuzzIn = false;
-            BuzzedInPlayer = buzzingPlayer;
-            foreach (var player in ContestantsViewModel.Contestants)
-            {
-                player.IsBuzzed = false;
-            }
+                QuestionTimer.Stop();
+                CanBuzzIn = false;
+                BuzzedInPlayer = buzzingPlayer;
+                foreach (var player in ContestantsViewModel.Contestants)
+                {
+                    player.IsBuzzed = false;
+                }
 
-            LikelyCurrentGameState = GameStates.WaitingForAnswer;
-            BuzzedInPlayer.IsBuzzed = true;
-            await PropagateGameState().ConfigureAwait(true);
-            AnswerCommand.NotifyExecutabilityChanged();
+                LikelyCurrentGameState = GameStates.WaitingForAnswer;
+                BuzzedInPlayer.IsBuzzed = true;
+                await Server.RequestPlayAudio(AudioClips.Buzz);
+                await PropagateGameState().ConfigureAwait(true);
+                AnswerCommand.NotifyExecutabilityChanged();
+            }
         }
 
         private static (int Category, int Question) GenerateDailyDouble()
@@ -221,6 +242,7 @@ namespace Jeffparty.Client
             QuestionTimer.Stop();
             ShouldShowQuestion = false;
             QuestionTimeRemaining = default;
+            DisableBuzzProcessing();
             LikelyCurrentGameState = GameStates.SelectingQuestion;
             await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {

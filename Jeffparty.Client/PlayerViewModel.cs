@@ -196,7 +196,6 @@ namespace Jeffparty.Client
 
             IsBuzzedIn = Settings.Guid == newState.BuzzedInPlayerId;
             GameboardCategories = newCategories;
-            BuzzInCommand.CanBuzzIn = newState.CanBuzzIn;
             CanBuzzIn = newState.CanBuzzIn;
             _logger.Trace($"Update end: {this}");
         }

@@ -184,17 +184,9 @@ namespace Jeffparty.Client
                 viewModel.ContestantsViewModel.Contestants.FirstOrDefault(
                     contestant => contestant.Guid == buzzingPlayer);
             _logger.Trace(p?.ToString() ?? "player wasn't found");
-            if (p != null)
+            if (p != null && viewModel.IsHost && viewModel.HostViewModel != null)
             {
-                AudioPlaybackEngine.Instance.PlaySound("./Sounds/buzz.mp3");
-
-                await Dispatcher.InvokeAsync(async () =>
-                {
-                    if (viewModel.IsHost && viewModel.HostViewModel != null)
-                    {
-                        await viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz);
-                    }
-                });
+                await Dispatcher.InvokeAsync(async () => await viewModel.HostViewModel.GameManager.PlayerBuzzed(p, timerSecondsAtBuzz));
             }
         }
 

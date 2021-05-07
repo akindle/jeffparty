@@ -16,12 +16,7 @@ namespace Jeffparty.Client.Commands
 
         public override bool CanExecute(object? parameter)
         {
-            if (parameter is CategoryViewModel categoryViewModel)
-            {
-                return categoryViewModel.CategoryQuestions.All(q => !q.IsAsked);
-            }
-
-            return false;
+            return true;
         }
 
         public override async void Execute(object? parameter)
