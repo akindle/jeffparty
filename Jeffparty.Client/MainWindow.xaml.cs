@@ -112,6 +112,11 @@ namespace Jeffparty.Client
         public async Task OnConnected()
         {
             _logger.Trace();
+            if (!string.IsNullOrEmpty(hub.LobbyCode))
+            {
+                await hub.JoinLobby(hub.LobbyCode);
+            }
+
             if (viewModel.IsPlayer)
             {
                 await hub.NotifyPlayerJoined(settings.Guid, settings.PlayerName);

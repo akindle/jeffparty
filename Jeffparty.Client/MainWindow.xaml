@@ -11,6 +11,10 @@
     mc:Ignorable="d">
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+            <TextBlock Text="{Binding LobbyCode, StringFormat='Lobby Code: {0}'}" 
+                       FontSize="18" FontWeight="Bold" Foreground="DarkBlue" Margin="10,0"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter}}" />
             <CheckBox Content="Lightning Round" IsChecked="{Binding PersistedSettings.IsLightningRound}" Margin="10,0"
                       ToolTip="3 categories × 4 questions, no Double Jeopardy. Takes effect on next launch."
                       Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter}}" />

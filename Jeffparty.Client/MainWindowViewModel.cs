@@ -1,4 +1,6 @@
-﻿using Jeffparty.Client.Commands;
+﻿using System;
+using System.Linq;
+using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -6,7 +8,9 @@ namespace Jeffparty.Client
 {
     public class MainWindowViewModel : Notifier
     {
-        public string Title => IsHost ? $"Jeffparty - Host - {ConnectionState}" : $"Jeffparty - {ConnectionState}";
+        public string Title => IsHost ? $"Jeffparty - Host [{LobbyCode}] - {ConnectionState}" : $"Jeffparty - {ConnectionState}";
+
+        public string LobbyCode { get; }
 
         public ContestantsViewModel ContestantsViewModel { get; set; }
 
@@ -46,10 +50,14 @@ namespace Jeffparty.Client
 
         public MainWindowViewModel(IMessageHub server, PersistedSettings settings, ILoggerFactory loggerFactory)
         {
+            LobbyCode = GenerateLobbyCode();
             IsHost = settings.IsHost;
             Server = server;
             PersistedSettings = settings;
             settings.MainWindow = this;
+
+            if (server is ServerWrapper wrapper)
+                wrapper.LobbyCode = LobbyCode;
 
             ContestantsViewModel = new ContestantsViewModel {IsHost = IsHost};
             
@@ -64,6 +72,13 @@ namespace Jeffparty.Client
             {
                 PlayerViewModel = new PlayerViewModel(settings, server, ContestantsViewModel);
             }
+        }
+
+        private static string GenerateLobbyCode()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            var random = Random.Shared;
+            return new string(Enumerable.Range(0, 4).Select(_ => chars[random.Next(chars.Length)]).ToArray());
         }
     }
 }

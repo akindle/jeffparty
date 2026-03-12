@@ -12,6 +12,7 @@ public sealed class GameHubService : IAsyncDisposable
     public List<ContestantViewModel> Contestants { get; } = new();
     public bool IsConnected => _connection.State == HubConnectionState.Connected;
     public bool IsKicked { get; private set; }
+    public string? LobbyCode { get; private set; }
 
     public event Action? StateChanged;
 
@@ -31,11 +32,15 @@ public sealed class GameHubService : IAsyncDisposable
             StateChanged?.Invoke();
         });
 
-        _connection.On(nameof(IMessageSpoke.OnConnected), () =>
+        _connection.On(nameof(IMessageSpoke.OnConnected), async () =>
         {
+            if (!string.IsNullOrEmpty(LobbyCode))
+            {
+                await _connection.InvokeAsync<bool>(nameof(IMessageHub.JoinLobby), LobbyCode);
+            }
             if (_playerId != Guid.Empty)
             {
-                _connection.InvokeAsync<bool>(
+                await _connection.InvokeAsync<bool>(
                     nameof(IMessageHub.NotifyPlayerJoined), _playerId, PlayerName ?? "");
             }
         });
@@ -92,16 +97,18 @@ public sealed class GameHubService : IAsyncDisposable
 
     public string? PlayerName { get; private set; }
 
-    public async Task ConnectAsync(string playerName)
+    public async Task ConnectAsync(string playerName, string lobbyCode)
     {
         _playerId = Guid.NewGuid();
         PlayerName = playerName;
-        Console.WriteLine($"[GameHub] Connecting to hub... PlayerId={_playerId}");
+        LobbyCode = lobbyCode.Trim().ToUpperInvariant();
+        Console.WriteLine($"[GameHub] Connecting to hub... PlayerId={_playerId}, Lobby={LobbyCode}");
         await _connection.StartAsync();
         Console.WriteLine($"[GameHub] Connected! State={_connection.State}");
+        await _connection.InvokeAsync<bool>(nameof(IMessageHub.JoinLobby), LobbyCode);
         await _connection.InvokeAsync<bool>(
             nameof(IMessageHub.NotifyPlayerJoined), _playerId, playerName);
-        Console.WriteLine($"[GameHub] NotifyPlayerJoined sent for '{playerName}'");
+        Console.WriteLine($"[GameHub] NotifyPlayerJoined sent for '{playerName}' in lobby '{LobbyCode}'");
     }
 
     public async Task BuzzIn()

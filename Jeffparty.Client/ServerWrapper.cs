@@ -10,6 +10,7 @@ namespace Jeffparty.Client
     {
         private readonly IMessageSpoke _spoke;
         private HubConnection? _underlyingConnection;
+        public string? LobbyCode { get; set; }
 
         public async Task ChangeHostUrl(string? newHost)
         {
@@ -26,6 +27,8 @@ namespace Jeffparty.Client
                             new HubConnectionBuilder().WithUrl(_hostUrl).WithAutomaticReconnect().Build();
                         RegisterSpokeHandlers(_underlyingConnection, _spoke);
                         await _underlyingConnection.StartAsync();
+                        if (!string.IsNullOrEmpty(LobbyCode))
+                            await JoinLobby(LobbyCode);
                     }
                 }
             }
@@ -118,6 +121,13 @@ namespace Jeffparty.Client
             _logger.Trace();
             if (_underlyingConnection == null) return false;
             return await _underlyingConnection.InvokeAsync<bool>(nameof(IMessageHub.KickPlayer), playerGuid);
+        }
+
+        public async Task<bool> JoinLobby(string lobbyCode)
+        {
+            _logger.Trace();
+            if (_underlyingConnection == null) return false;
+            return await _underlyingConnection.InvokeAsync<bool>(nameof(IMessageHub.JoinLobby), lobbyCode);
         }
     }
 }

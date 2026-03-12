@@ -29,6 +29,7 @@ namespace Jeffparty.Interfaces
         Task<bool> SubmitFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer);
         Task<bool> RequestPlayAudio(AudioClips clip);
         Task<bool> KickPlayer(Guid playerGuid);
+        Task<bool> JoinLobby(string lobbyCode);
     }
 
     public enum AudioClips
