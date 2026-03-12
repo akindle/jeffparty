@@ -112,6 +112,17 @@
                     Text="{Binding ActiveQuestion}"
                     Visibility="{Binding IsQuestionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     TextWrapping="Wrap" />
+                <TextBlock
+                    Width="400"
+                    FontSize="18"
+                    FontStyle="Italic"
+                    Foreground="DarkGreen"
+                    HorizontalAlignment="Left"
+                    TextWrapping="Wrap"
+                    Visibility="{Binding IsAnswerRevealed, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Run Text="Answer: " FontWeight="Bold" />
+                    <Run Text="{Binding RevealedAnswer, Mode=OneWay}" />
+                </TextBlock>
                 <TextBlock>
                     <Run Text="Time left to buzz in: " />
                     <Run Text="{Binding QuestionTimeRemaining, StringFormat={}{0:ss\\:ff}}" />

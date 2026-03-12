@@ -149,12 +149,18 @@ namespace Jeffparty.Client
 
         public uint MaximumWager => (uint)(Math.Abs(Self?.Score ?? 0) + 2000);
 
+        public string RevealedAnswer { get; set; } = string.Empty;
+
+        public bool IsAnswerRevealed => !string.IsNullOrEmpty(RevealedAnswer);
+
         public void Update(GameState newState)
         {
             _logger.Trace(newState.ToString());
             _logger.Trace($"Update start: {this}");
             BoardControllerText = string.IsNullOrEmpty(newState.BoardController) ? "Unknown" : newState.BoardController;
-            ActiveQuestion = $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
+            ActiveQuestion = newState.QuestionPointValue > 0
+                ? $"{newState.QuestionCategory} for ${newState.QuestionPointValue}: {newState.CurrentQuestion}"
+                : $"{newState.QuestionCategory}: {newState.CurrentQuestion}";
             QuestionTimeRemaining = TimeSpan.FromSeconds(newState.QuestionTimeRemainingSeconds);
 
             BuzzedInPlayer =
@@ -197,6 +203,7 @@ namespace Jeffparty.Client
             IsBuzzedIn = Settings.Guid == newState.BuzzedInPlayerId;
             GameboardCategories = newCategories;
             CanBuzzIn = newState.CanBuzzIn;
+            RevealedAnswer = newState.CorrectAnswer ?? string.Empty;
             _logger.Trace($"Update end: {this}");
         }
 

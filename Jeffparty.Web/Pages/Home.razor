@@ -33,7 +33,18 @@
     private string? _error;
     private bool _connecting;
 
+    [SupplyParameterFromQuery(Name = "lobby")]
+    public string? LobbyParam { get; set; }
+
     [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(LobbyParam))
+        {
+            _lobbyCode = LobbyParam.Trim().ToUpperInvariant();
+        }
+    }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {

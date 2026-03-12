@@ -5,7 +5,13 @@
     <div class="question-panel">
         @if (!string.IsNullOrEmpty(State.QuestionCategory))
         {
-            <div class="category-label">@State.QuestionCategory</div>
+            <div class="category-label">
+                @State.QuestionCategory
+                @if (State.QuestionPointValue > 0)
+                {
+                    <span> for $@State.QuestionPointValue</span>
+                }
+            </div>
         }
         <div>@State.CurrentQuestion</div>
 
@@ -15,6 +21,13 @@
                 <div class="timer-bar-fill" style="width: @TimerPercent%"></div>
             </div>
         }
+    </div>
+}
+else if (!string.IsNullOrEmpty(State.CorrectAnswer))
+{
+    <div class="question-panel">
+        <div class="category-label">Answer</div>
+        <div>@State.CorrectAnswer</div>
     </div>
 }
 

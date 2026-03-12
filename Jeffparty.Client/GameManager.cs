@@ -136,7 +136,9 @@ namespace Jeffparty.Client
                 BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty,
                 ShouldShowQuestion = ShouldShowQuestion,
                 BoardController = LastCorrectPlayer?.PlayerName ?? string.Empty,
-                IsLightningRound = IsLightningRound
+                IsLightningRound = IsLightningRound,
+                CorrectAnswer = RevealedAnswer ?? string.Empty,
+                QuestionPointValue = IsFinalJeopardy ? 0 : CurrentQuestion.PointValue
             };
         }
 
@@ -272,6 +274,7 @@ namespace Jeffparty.Client
             BuzzedInPlayer = null;
             QuestionTimer.Stop();
             ShouldShowQuestion = false;
+            RevealedAnswer = CurrentQuestion?.AnswerText ?? string.Empty;
             QuestionTimeRemaining = default;
             DisableBuzzProcessing();
             LikelyCurrentGameState = GameStates.SelectingQuestion;
@@ -305,6 +308,7 @@ namespace Jeffparty.Client
                 
                 if(targetState != null)
                 {
+                    RevealedAnswer = string.Empty;
                     if (targetState == GameModes.DoubleJeff)
                     {
                         _logger.LogDebug("Advancing to double jeopardy");
@@ -391,6 +395,7 @@ namespace Jeffparty.Client
         }
 
         public bool ShouldShowQuestion { get; set; }
+        public string RevealedAnswer { get; set; } = string.Empty;
         public ListenForAnswers ListenForAnswersCommand { get; set; }
 
 

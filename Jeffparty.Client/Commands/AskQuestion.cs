@@ -25,6 +25,8 @@ namespace Jeffparty.Client.Commands
 
         public override async void Execute(object? parameter)
         {
+            game.RevealedAnswer = string.Empty;
+
             foreach (var contestant in game.ContestantsViewModel.Contestants)
             {
                 contestant.IsBuzzed = false;

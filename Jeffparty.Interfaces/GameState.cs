@@ -48,6 +48,10 @@ namespace Jeffparty.Interfaces
 
         public bool IsLightningRound { get; init; }
 
+        public string CorrectAnswer { get; init; }
+
+        public int QuestionPointValue { get; init; }
+
         public override string ToString()
         {
             return
