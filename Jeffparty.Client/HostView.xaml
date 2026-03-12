@@ -100,6 +100,29 @@
             <Button Content="Correct" Command="{Binding GameManager.AnswerCommand}" CommandParameter="True" />
             <Button Content="Incorrect" Command="{Binding GameManager.AnswerCommand}" CommandParameter="False" />
         </StackPanel>
+        <Button Content="Skip to Next Round" Margin="5,5,0,0" HorizontalAlignment="Left"
+                Command="{Binding GameManager.SkipToNextRoundCommand}" />
         <TextBlock Text="{Binding GameManager.LikelyCurrentGameState, StringFormat=Likely current game state (debug info): {0}}" />
+        <TextBlock Text="⚡ LIGHTNING ROUND" FontWeight="Bold" Foreground="OrangeRed" FontSize="14"
+                   Visibility="{Binding GameManager.IsLightningRound, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Border BorderBrush="Purple" BorderThickness="2" Margin="5" Padding="5">
+            <StackPanel>
+                <TextBlock FontWeight="Bold" FontSize="14" Foreground="Purple" Text="Final Jeopardy Preview" />
+                <TextBlock>
+                    <Run Text="Category:" FontWeight="Bold" />
+                    <Run Text="{Binding GameManager.FinalJeopardyCategory}" />
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap">
+                    <Run Text="Question:" FontWeight="Bold" />
+                    <Run Text="{Binding GameManager.FinalJeopardyQuestion}" />
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap">
+                    <Run Text="Answer:" FontWeight="Bold" />
+                    <Run Text="{Binding GameManager.FinalJeopardyAnswer}" />
+                </TextBlock>
+                <Button Content="Swap Final Jeopardy" Margin="0,5,0,0" HorizontalAlignment="Left"
+                        Command="{Binding GameManager.SwapFinalJeopardyCommand}" />
+            </StackPanel>
+        </Border>
     </StackPanel>
 </UserControl>

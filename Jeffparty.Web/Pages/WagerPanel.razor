@@ -1,0 +1,43 @@
+@inject GameHubService Hub
+@implements IDisposable
+
+<div class="wager-panel">
+    <h3>Daily Double! Enter your wager:</h3>
+    <input type="number" min="0" max="@MaxWager" @bind="_wager" />
+    <button class="btn" @onclick="Submit" disabled="@(_wager < 0 || _wager > MaxWager)">
+        Submit Wager
+    </button>
+</div>
+
+@code {
+    private int _wager;
+
+    private int MaxWager
+    {
+        get
+        {
+            var self = Hub.Contestants.FirstOrDefault(c => Hub.IsMe(c.Guid));
+            return Math.Abs(self?.Score ?? 0) + 2000;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await Hub.SubmitWager(_wager);
+    }
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

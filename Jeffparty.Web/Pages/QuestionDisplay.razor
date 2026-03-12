@@ -1,0 +1,42 @@
+@inject GameHubService Hub
+
+@if (State.ShouldShowQuestion && !string.IsNullOrEmpty(State.CurrentQuestion))
+{
+    <div class="question-panel">
+        @if (!string.IsNullOrEmpty(State.QuestionCategory))
+        {
+            <div class="category-label">@State.QuestionCategory</div>
+        }
+        <div>@State.CurrentQuestion</div>
+
+        @if (State.QuestionTimeRemainingSeconds > 0)
+        {
+            <div class="timer-bar">
+                <div class="timer-bar-fill" style="width: @TimerPercent%"></div>
+            </div>
+        }
+    </div>
+}
+
+@implements IDisposable
+
+@code {
+    private GameState State => Hub.CurrentState;
+    private const double MaxSeconds = 10.0;
+    private double TimerPercent => Math.Clamp(State.QuestionTimeRemainingSeconds / MaxSeconds * 100, 0, 100);
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

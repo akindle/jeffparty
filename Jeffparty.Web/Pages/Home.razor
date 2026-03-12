@@ -1,0 +1,57 @@
+@page "/"
+@inject GameHubService Hub
+
+<div class="join-screen">
+    <h1>JEFFPARTY!</h1>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <p class="error-text">@_error</p>
+    }
+
+    <input @bind="_playerName" @bind:event="oninput"
+           placeholder="Enter your name"
+           @onkeydown="HandleKeyDown"
+           disabled="@_connecting" />
+
+    <button @onclick="JoinGame"
+            disabled="@(string.IsNullOrWhiteSpace(_playerName) || _connecting)">
+        @(_connecting ? "Connecting..." : "Join Game")
+    </button>
+</div>
+
+@code {
+    private string _playerName = "";
+    private string? _error;
+    private bool _connecting;
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_playerName) && !_connecting)
+        {
+            await JoinGame();
+        }
+    }
+
+    private async Task JoinGame()
+    {
+        if (string.IsNullOrWhiteSpace(_playerName)) return;
+        _connecting = true;
+        _error = null;
+        try
+        {
+            await Hub.ConnectAsync(_playerName.Trim());
+            Nav.NavigateTo("/play");
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not connect: {ex.Message}";
+        }
+        finally
+        {
+            _connecting = false;
+        }
+    }
+}

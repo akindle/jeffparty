@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,12 @@ namespace Jeffparty.Client
         public bool IsFinalJeopardy { get; set; }
 
         public bool IsDoubleJeopardy { get; set; }
+
+        public bool IsLightningRound { get; set; }
+
+        public int CategoryCount => IsLightningRound ? 3 : 6;
+
+        public int QuestionsPerCategory => IsLightningRound ? 4 : 5;
 
         public Guid PlayerWithDailyDouble { get; set; }
 
@@ -60,12 +67,17 @@ namespace Jeffparty.Client
 
         public ReplaceCategory ReplaceCategory { get; }
 
+        public ICommand SwapFinalJeopardyCommand { get; }
+
+        public SkipToNextRound SkipToNextRoundCommand { get; }
+
         public GameManager(IMessageHub server, HostViewModel hostViewModel, ContestantsViewModel contestants,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory, bool isLightningRound = false)
         {
             FinalJeopardyCategory = string.Empty;
             FinalJeopardyQuestion = string.Empty;
             FinalJeopardyAnswer = string.Empty;
+            IsLightningRound = isLightningRound;
             _logger = loggerFactory.CreateLogger<GameManager>();
             ContestantsViewModel = contestants;
             Server = server;
@@ -73,6 +85,8 @@ namespace Jeffparty.Client
             AskQuestionCommand = new AskQuestion(this);
             AnswerCommand = new AcceptOrRejectAnswer(this, loggerFactory);
             ReplaceCategory = new ReplaceCategory(this);
+            SwapFinalJeopardyCommand = new SwapFinalJeopardy(this);
+            SkipToNextRoundCommand = new SkipToNextRound(this);
             ListenForAnswersCommand = new ListenForAnswers(this);
             QuestionTimer = new DispatcherTimer
             {
@@ -84,8 +98,9 @@ namespace Jeffparty.Client
 
             CurrentQuestion = new QuestionViewModel();
 
+            LoadRandomFinalJeopardy();
 
-            var (category, question) = GenerateDailyDouble();
+            var (category, question) = GenerateDailyDouble(CategoryCount);
 
             hostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
         }
@@ -119,7 +134,8 @@ namespace Jeffparty.Client
                 FinalJeopardyCategory = FinalJeopardyCategory,
                 BuzzedInPlayerId = BuzzedInPlayer?.Guid ?? Guid.Empty,
                 ShouldShowQuestion = ShouldShowQuestion,
-                BoardController = LastCorrectPlayer?.PlayerName ?? string.Empty
+                BoardController = LastCorrectPlayer?.PlayerName ?? string.Empty,
+                IsLightningRound = IsLightningRound
             };
         }
 
@@ -187,10 +203,10 @@ namespace Jeffparty.Client
             }
         }
 
-        private static (int Category, int Question) GenerateDailyDouble()
+        private static (int Category, int Question) GenerateDailyDouble(int categoryCount)
         {
             var rand = new Random();
-            var dailyDoubleCategory = rand.Next(0, 6);
+            var dailyDoubleCategory = rand.Next(0, categoryCount);
             var dailyDoubleQuestion = rand.NextDouble() switch
             {
                 var val when val < 0.15 => 1,
@@ -207,6 +223,20 @@ namespace Jeffparty.Client
             Jeff,
             DoubleJeff,
             FinalJeff
+        }
+
+        public void LoadRandomFinalJeopardy()
+        {
+            var rootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Categories");
+            var finaljs = Directory
+                .EnumerateFiles(rootDirectory)
+                .Where(fileName => fileName.Contains("finalj")).ToList();
+            var random = new Random();
+            var finalj = finaljs[random.Next(finaljs.Count)];
+            var fj = File.ReadAllLines(finalj);
+            FinalJeopardyCategory = CategoryViewModel.CleanUpString(fj[0]);
+            FinalJeopardyQuestion = CategoryViewModel.CleanUpString(fj[1]);
+            FinalJeopardyAnswer = CategoryViewModel.CleanUpString(fj[2]);
         }
 
         public enum GameStates
@@ -253,7 +283,12 @@ namespace Jeffparty.Client
                 }
                 else if(HostViewModel.Categories.All(model => model.CategoryQuestions.All(question => question.IsAsked)))
                 {
-                    if (!IsDoubleJeopardy && !IsFinalJeopardy)
+                    if (IsLightningRound)
+                    {
+                        // Lightning round skips Double Jeopardy
+                        targetState = IsFinalJeopardy ? GameModes.Jeff : GameModes.FinalJeff;
+                    }
+                    else if (!IsDoubleJeopardy && !IsFinalJeopardy)
                     {
                         targetState = GameModes.DoubleJeff;
                     }
@@ -273,23 +308,12 @@ namespace Jeffparty.Client
                     {
                         _logger.LogDebug("Advancing to double jeopardy");
                         IsDoubleJeopardy = true;
-                        HostViewModel.Categories = new List<CategoryViewModel>
+                        HostViewModel.Categories = Enumerable.Range(0, CategoryCount)
+                            .Select(_ => CategoryViewModel.CreateRandom(QuestionsPerCategory) ??
+                                throw new InvalidOperationException())
+                            .Select(cvm => new CategoryViewModel
                             {
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException()
-                            }.Select(cvm => new CategoryViewModel
-                            {
-                                CategoryHeader =  cvm.CategoryHeader,
+                                CategoryHeader = cvm.CategoryHeader,
                                 CategoryQuestions = cvm.CategoryQuestions.Select(q => new QuestionViewModel
                                     {
                                         AnswerText = q.AnswerText,
@@ -305,7 +329,7 @@ namespace Jeffparty.Client
                         var lastCategory = -1;
                         while (assignedDailyDoubles < 2)
                         {
-                            var (candidateCategory, candidateQuestion) = GenerateDailyDouble();
+                            var (candidateCategory, candidateQuestion) = GenerateDailyDouble(CategoryCount);
                             var candidate = HostViewModel.Categories[candidateCategory]
                                 .CategoryQuestions[candidateQuestion];
                             if (!candidate.IsDailyDouble && lastCategory != candidateCategory)
@@ -322,23 +346,6 @@ namespace Jeffparty.Client
                         LikelyCurrentGameState = GameStates.WageringFinalJeopardy;
                         IsFinalJeopardy = true;
                         ShouldShowQuestion = false;
-                        var rootDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Categories");
-                        var finaljs = Directory
-                            .EnumerateFiles(rootDirectory)
-                            .Where(fileName => fileName.Contains("finalj")).ToList();
-                        var random = new Random();
-                        var finalj = finaljs[random.Next(finaljs.Count)];
-                        var fj = File.ReadAllLines(finalj);
-                        try
-                        {
-                            File.Delete(finalj);
-                        }
-                        catch (Exception)
-                        {
-                        }
-                        FinalJeopardyCategory = CategoryViewModel.CleanUpString(fj[0]);
-                        FinalJeopardyQuestion = CategoryViewModel.CleanUpString(fj[1]);
-                        FinalJeopardyAnswer = CategoryViewModel.CleanUpString(fj[2]);
                         CurrentQuestion = new QuestionViewModel
                         {
                             AnswerText = FinalJeopardyAnswer, IsAsked = false, IsDailyDouble = false, PointValue = 0,
@@ -349,35 +356,27 @@ namespace Jeffparty.Client
                     else if(targetState == GameModes.Jeff)
                     {
                         _logger.LogDebug("Advancing to new game");
-                        HostViewModel.Categories = new List<CategoryViewModel>
+                        IsDoubleJeopardy = false;
+                        IsFinalJeopardy = false;
+                        HostViewModel.Categories = Enumerable.Range(0, CategoryCount)
+                            .Select(_ => CategoryViewModel.CreateRandom(QuestionsPerCategory) ??
+                                throw new InvalidOperationException())
+                            .Select(cvm => new CategoryViewModel
                             {
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException(),
-                                CategoryViewModel.CreateRandom() ??
-                                throw new InvalidOperationException()
-                            }.Select(cvm => new CategoryViewModel
-                            {
+                                CategoryHeader = cvm.CategoryHeader,
                                 CategoryQuestions = cvm.CategoryQuestions.Select(q => new QuestionViewModel
                                     {
                                         AnswerText = q.AnswerText,
                                         IsAsked = false,
                                         IsDailyDouble = false,
-                                        PointValue = q.PointValue * 2,
+                                        PointValue = q.PointValue,
                                         QuestionText = q.QuestionText
                                     })
                                     .ToList()
                             })
                             .ToList();
 
-                        var (category, question) = GenerateDailyDouble();
+                        var (category, question) = GenerateDailyDouble(CategoryCount);
 
                         HostViewModel.Categories[category].CategoryQuestions[question].IsDailyDouble = true;
                     }

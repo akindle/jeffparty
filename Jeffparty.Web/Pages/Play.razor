@@ -1,0 +1,50 @@
+@page "/play"
+@inject GameHubService Hub
+@implements IDisposable
+
+@if (!Hub.IsConnected)
+{
+    <div class="join-screen">
+        <p>Not connected. <a href="/">Go back to join.</a></p>
+    </div>
+    return;
+}
+
+<div class="game-container">
+    @if (State.IsFinalJeopardy)
+    {
+        <FinalJeopardyPanel />
+    }
+    else
+    {
+        <GameBoard />
+        <QuestionDisplay />
+        <BuzzerPanel />
+    }
+
+    <Scoreboard />
+
+    @if (!string.IsNullOrEmpty(State.BoardController))
+    {
+        <div class="board-controller">Board controlled by @State.BoardController</div>
+    }
+</div>
+
+@code {
+    private GameState State => Hub.CurrentState;
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

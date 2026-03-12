@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging.EventLog;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NLog.Extensions.Logging;
-using SignalR.Strong;
 
 namespace Jeffparty.Client
 {
@@ -48,7 +47,7 @@ namespace Jeffparty.Client
                 _logger.LogWarning($"Settings load failed: {e}");
                 _logger.LogInformation("Generating default settings");
                 var newSettings = new PersistedSettings(Guid.NewGuid(), "New Player",
-                    "https://jeffparty.alexkindle.com/ChatHub");
+                    "http://localhost:5000/ChatHub");
                 newSettings.SaveSettings();
                 return newSettings;
             }
@@ -152,17 +151,21 @@ namespace Jeffparty.Client
                 return;
             }
 
-            var reconnector =
-                viewModel.ContestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == joiner);
-            if (reconnector == null)
+            ContestantViewModel? reconnector = null;
+            await Dispatcher.InvokeAsync(() =>
             {
-                reconnector = new ContestantViewModel {PlayerName = playerName, Guid = joiner, Score = 0};
-                viewModel.ContestantsViewModel.Contestants.Add(reconnector);
-            }
-            else
-            {
-                reconnector.PlayerName = playerName;
-            }
+                reconnector =
+                    viewModel.ContestantsViewModel.Contestants.FirstOrDefault(contestant => contestant.Guid == joiner);
+                if (reconnector == null)
+                {
+                    reconnector = new ContestantViewModel {PlayerName = playerName, Guid = joiner, Score = 0};
+                    viewModel.ContestantsViewModel.Contestants.Add(reconnector);
+                }
+                else
+                {
+                    reconnector.PlayerName = playerName;
+                }
+            });
 
             foreach (var player in viewModel.ContestantsViewModel.Contestants)
             {

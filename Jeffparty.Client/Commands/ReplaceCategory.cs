@@ -25,8 +25,9 @@ namespace Jeffparty.Client.Commands
             {
                 await Dispatcher.CurrentDispatcher.InvokeAsync(() =>
                 {
+                    var questionCount = _gameManager.QuestionsPerCategory;
                     var questionValues = category.CategoryQuestions.ToList();
-                    var tempReplacement = CategoryViewModel.CreateRandom() ?? CategoryViewModel.GenerateNonsense();
+                    var tempReplacement = CategoryViewModel.CreateRandom(questionCount) ?? CategoryViewModel.GenerateNonsense(questionCount);
                     category.CategoryHeader = tempReplacement.CategoryHeader;
                     category.CategoryQuestions = tempReplacement.CategoryQuestions;
                     foreach (var (source, target) in questionValues.Zip(category.CategoryQuestions))

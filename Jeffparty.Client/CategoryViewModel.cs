@@ -17,15 +17,15 @@ namespace Jeffparty.Client
 
         public List<QuestionViewModel> CategoryQuestions { get; set; } = new();
 
-        public static CategoryViewModel GenerateNonsense()
+        public static CategoryViewModel GenerateNonsense(int questionCount = 5)
         {
             var result = new CategoryViewModel();
             result.CategoryHeader = "that aint real";
-            result.CategoryQuestions = Enumerable.Range(1, 5).Select(a => new QuestionViewModel()).ToList();
+            result.CategoryQuestions = Enumerable.Range(1, questionCount).Select(a => new QuestionViewModel()).ToList();
             return result;
         }
 
-        public static CategoryViewModel? CreateRandom()
+        public static CategoryViewModel? CreateRandom(int questionCount = 5)
         {
             try
             {
@@ -38,23 +38,13 @@ namespace Jeffparty.Client
                 do
                 {
                     var path = files[rand.Next(0, files.Count)];
-                    shouldLoop = !UsedPaths.Add(path) || !ValidatePath(path, out result) || result == null;
+                    shouldLoop = !UsedPaths.Add(path) || !ValidatePath(path, out result, questionCount) || result == null;
                     if (UsedPaths.Count == files.Count)
                     {
                         shouldLoop = false;
                     }
                 } while (shouldLoop);
 
-                foreach (var path in UsedPaths)
-                {
-                    try
-                    {
-                        File.Delete(path);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
                 return result;
             }
             catch
@@ -68,7 +58,7 @@ namespace Jeffparty.Client
             return Regex.Replace(HttpUtility.HtmlDecode(input), "<[^>]*>", "");
         }
 
-        private static bool ValidatePath(string path, out CategoryViewModel? result)
+        private static bool ValidatePath(string path, out CategoryViewModel? result, int questionCount = 5)
         {
             result = null;
             if (!path.Contains("-"))
@@ -85,7 +75,8 @@ namespace Jeffparty.Client
                 var answerText = File.ReadAllLines(answersPath);
                 Debug.Assert(questionText[0] == answerText[0]);
                 var res = new CategoryViewModel {CategoryHeader = CleanUpString(questionText[0])};
-                for (var i = 1; i < questionText.Length; i++)
+                var limit = Math.Min(questionText.Length, questionCount + 1);
+                for (var i = 1; i < limit; i++)
                 {
                     if (questionText[i].Contains("<"))
                     {

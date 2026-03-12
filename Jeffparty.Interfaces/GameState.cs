@@ -46,6 +46,8 @@ namespace Jeffparty.Interfaces
         public bool ShouldShowQuestion { get; init; }
         public string BoardController { get; init; }
 
+        public bool IsLightningRound { get; init; }
+
         public override string ToString()
         {
             return

@@ -21,6 +21,8 @@ namespace Jeffparty.Client
         } = string.Empty;
 
         public bool IsHost{get;set;}
+
+        public bool IsLightningRound{get;set;}
         
         [XmlIgnore]
         public MainWindowViewModel? MainWindow { get; set; }
@@ -30,7 +32,8 @@ namespace Jeffparty.Client
             Guid = guid;
             PlayerName = playerName;
             HostUrl = hostUrl;
-            IsHost = false;
+            IsHost = true;
+            IsLightningRound = true;
             ConfigureEventing();
         }
 

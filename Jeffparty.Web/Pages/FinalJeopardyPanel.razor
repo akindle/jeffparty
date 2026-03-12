@@ -1,0 +1,83 @@
+@inject GameHubService Hub
+@implements IDisposable
+
+<div class="final-jeopardy-panel">
+    <h2>Final Jeopardy!</h2>
+
+    @if (!string.IsNullOrEmpty(State.FinalJeopardyCategory))
+    {
+        <div class="category-label">@State.FinalJeopardyCategory</div>
+    }
+
+    @if (State.ShouldShowQuestion && !string.IsNullOrEmpty(State.CurrentQuestion))
+    {
+        <div>@State.CurrentQuestion</div>
+    }
+
+    @if (!_wagerSubmitted)
+    {
+        <div class="wager-panel">
+            <h3>Enter your wager:</h3>
+            <input type="number" min="0" max="@MaxWager" @bind="_wager" />
+            <button class="btn" @onclick="SubmitWager" disabled="@(_wager < 0 || _wager > MaxWager)">
+                Submit Wager
+            </button>
+        </div>
+    }
+    else if (!_answerSubmitted)
+    {
+        <textarea placeholder="Your answer..." @bind="_answer"></textarea>
+        <button class="btn" @onclick="SubmitAnswer"
+                disabled="@string.IsNullOrWhiteSpace(_answer)">
+            Submit Answer
+        </button>
+    }
+    else
+    {
+        <p>Answer submitted. Waiting for results...</p>
+    }
+</div>
+
+@code {
+    private GameState State => Hub.CurrentState;
+    private int _wager;
+    private string _answer = "";
+    private bool _wagerSubmitted;
+    private bool _answerSubmitted;
+
+    private int MaxWager
+    {
+        get
+        {
+            var self = Hub.Contestants.FirstOrDefault(c => Hub.IsMe(c.Guid));
+            return Math.Max(Math.Abs(self?.Score ?? 0), 2000);
+        }
+    }
+
+    private async Task SubmitWager()
+    {
+        await Hub.SubmitWager(_wager);
+        _wagerSubmitted = true;
+    }
+
+    private async Task SubmitAnswer()
+    {
+        await Hub.SubmitFinalJeopardyAnswer(_answer);
+        _answerSubmitted = true;
+    }
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

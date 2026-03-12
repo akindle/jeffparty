@@ -7,11 +7,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="{Binding Title}"
     d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
-    SizeToContent="WidthAndHeight"
+    Width="1500" Height="900"
     mc:Ignorable="d">
-    <StackPanel Orientation="Horizontal">
-        <local:PlayerView DataContext="{Binding PlayerViewModel}" Visibility="{Binding DataContext.IsPlayer, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
-        <local:HostView DataContext="{Binding HostViewModel}" Visibility="{Binding DataContext.IsHost, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
-        <local:Contestants DataContext="{Binding ContestantsViewModel}" />
-    </StackPanel>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
+            <CheckBox Content="Lightning Round" IsChecked="{Binding PersistedSettings.IsLightningRound}" Margin="10,0"
+                      ToolTip="3 categories × 4 questions, no Double Jeopardy. Takes effect on next launch."
+                      Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </StackPanel>
+        <local:Contestants DockPanel.Dock="Right" DataContext="{Binding ContestantsViewModel}" MinWidth="250" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <local:PlayerView DataContext="{Binding PlayerViewModel}" Visibility="{Binding DataContext.IsPlayer, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <local:HostView DataContext="{Binding HostViewModel}" Visibility="{Binding DataContext.IsHost, RelativeSource={RelativeSource AncestorType=local:MainWindow}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </Window>

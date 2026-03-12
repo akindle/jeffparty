@@ -55,7 +55,7 @@ namespace Jeffparty.Client
             
             if (IsHost)
             {
-                HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory);
+                HostViewModel = new HostViewModel(server, ContestantsViewModel, loggerFactory, settings.IsLightningRound);
                 ContestantsViewModel.AdminSetScore = new AdminSetScore(HostViewModel.GameManager);
                 ContestantsViewModel.CorrectFinalJeopardy = new GradeFinalJeopardyCommand(HostViewModel.GameManager, true);
                 ContestantsViewModel.IncorrectFinalJeopardy = new GradeFinalJeopardyCommand(HostViewModel.GameManager, false);

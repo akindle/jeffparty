@@ -1,0 +1,30 @@
+@inject GameHubService Hub
+
+<div class="scoreboard">
+    @foreach (var c in Hub.Contestants)
+    {
+        <div class="score-card @(c.IsBuzzed ? "buzzed" : "")">
+            <div class="player-name">@c.PlayerName</div>
+            <div class="player-score">$@c.Score.ToString("N0")</div>
+        </div>
+    }
+</div>
+
+@implements IDisposable
+
+@code {
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

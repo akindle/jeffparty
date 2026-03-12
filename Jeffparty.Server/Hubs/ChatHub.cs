@@ -2,14 +2,23 @@
 using System.Threading.Tasks;
 using Jeffparty.Interfaces;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace Jeffparty.Server.Hubs
 {
     public class ChatHub : Hub<IMessageSpoke>, IMessageHub
     {
+        private readonly ILogger<ChatHub> _logger;
+
+        public ChatHub(ILogger<ChatHub> logger)
+        {
+            _logger = logger;
+        }
 
         public async Task<bool> PropagateGameState(GameState state)
         {
+            _logger.LogDebug("PropagateGameState: CanBuzzIn={CanBuzzIn}, ShouldShowQuestion={Show}, Question={Q}",
+                state.CanBuzzIn, state.ShouldShowQuestion, state.CurrentQuestion?[..Math.Min(30, state.CurrentQuestion?.Length ?? 0)]);
             await Clients.Others.UpdateGameState(state);
             return true;
         }
@@ -28,6 +37,7 @@ namespace Jeffparty.Server.Hubs
 
         public async Task<bool> BuzzIn(Guid buzzingPlayer, double timerSecondsAtBuzz)
         {
+            _logger.LogInformation("BuzzIn from {Player} at {Timer}s", buzzingPlayer, timerSecondsAtBuzz);
             await Clients.All.NotifyPlayerBuzzed(buzzingPlayer, timerSecondsAtBuzz);
             return true;
         }
@@ -58,8 +68,16 @@ namespace Jeffparty.Server.Hubs
 
         public override async Task OnConnectedAsync()
         {
+            _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
             await base.OnConnectedAsync();
             await Clients.Caller.OnConnected();
+        }
+
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            _logger.LogInformation("Client disconnected: {ConnectionId}, Exception: {Exception}",
+                Context.ConnectionId, exception?.Message);
+            return base.OnDisconnectedAsync(exception);
         }
     }
 

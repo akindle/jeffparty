@@ -16,40 +16,29 @@ namespace Jeffparty.Client
 
         public string BoardController => GameManager.LastCorrectPlayer?.PlayerName ?? "Unknown";
 
-        public HostViewModel(IMessageHub server, ContestantsViewModel contestants, ILoggerFactory loggerFactory)
+        public HostViewModel(IMessageHub server, ContestantsViewModel contestants, ILoggerFactory loggerFactory, bool isLightningRound = false)
         {
+            var categoryCount = isLightningRound ? 3 : 6;
+            var questionsPerCategory = isLightningRound ? 4 : 5;
             try
             {
-                Categories = new List<CategoryViewModel>
+                Categories = new List<CategoryViewModel>();
+                for (int i = 0; i < categoryCount; i++)
                 {
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.CreateRandom() ??
-                    CategoryViewModel.GenerateNonsense()
-                };
+                    Categories.Add(CategoryViewModel.CreateRandom(questionsPerCategory) ??
+                        CategoryViewModel.GenerateNonsense());
+                }
             }
             catch
             {
-                Categories = new List<CategoryViewModel>
+                Categories = new List<CategoryViewModel>();
+                for (int i = 0; i < categoryCount; i++)
                 {
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.GenerateNonsense(),
-                    CategoryViewModel.GenerateNonsense()
-                };
+                    Categories.Add(CategoryViewModel.GenerateNonsense());
+                }
             }
 
-            GameManager = new GameManager(server, this, contestants, loggerFactory);
+            GameManager = new GameManager(server, this, contestants, loggerFactory, isLightningRound);
             GameManager.PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName == nameof(GameManager.LastCorrectPlayer))

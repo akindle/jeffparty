@@ -1,7 +1,8 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PersistedSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Guid>b4414127-28ea-4f50-8398-c1e64e62b8f8</Guid>
-  <PlayerName>cat sucks dog</PlayerName>
+  <Guid>b20d210b-46db-44b9-8aec-bb79240fb65a</Guid>
+  <PlayerName>New Player</PlayerName>
   <HostUrl>http://localhost:5000/ChatHub</HostUrl>
   <IsHost>true</IsHost>
+  <IsLightningRound>true</IsLightningRound>
 </PersistedSettings>

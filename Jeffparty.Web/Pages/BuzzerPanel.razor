@@ -1,0 +1,57 @@
+@inject GameHubService Hub
+
+<div class="buzzer-section">
+    @if (ShowWager)
+    {
+        <WagerPanel />
+    }
+    else
+    {
+        <button class="buzz-button @(IsBuzzedIn ? "buzzed" : "")"
+                disabled="@(!State.CanBuzzIn)"
+                @onclick="OnBuzz">
+            @if (IsBuzzedIn)
+            {
+                <span>BUZZED!</span>
+            }
+            else
+            {
+                <span>BUZZ IN</span>
+            }
+        </button>
+
+        @if (Hub.GetBuzzedInPlayerName() is { } buzzedName)
+        {
+            <div class="buzzed-in-text">@buzzedName buzzed in!</div>
+        }
+    }
+</div>
+
+@implements IDisposable
+
+@code {
+    private GameState State => Hub.CurrentState;
+    private bool IsBuzzedIn => Hub.IsMe(State.BuzzedInPlayerId);
+    private bool ShowWager => State.PlayerWithDailyDouble != Guid.Empty
+        && Hub.IsMe(State.PlayerWithDailyDouble);
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnBuzz()
+    {
+        await Hub.BuzzIn();
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}

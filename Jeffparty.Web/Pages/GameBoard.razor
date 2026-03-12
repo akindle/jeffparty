@@ -1,0 +1,54 @@
+@inject GameHubService Hub
+
+@if (State.Categories is { Count: > 0 })
+{
+    <div class="board" style="--cols: @State.Categories.Count">
+        @foreach (var cat in State.Categories)
+        {
+            var isActive = cat.CategoryTitle == State.QuestionCategory;
+            <div class="board-header @(isActive ? "active" : "")">@cat.CategoryTitle</div>
+        }
+
+        @{
+            var rowCount = State.Categories.Max(c => c.AvailableQuestions?.Count ?? 0);
+            var multiplier = State.IsDoubleJeopardy ? 400 : 200;
+        }
+
+        @for (var row = 0; row < rowCount; row++)
+        {
+            @foreach (var cat in State.Categories)
+            {
+                var available = cat.AvailableQuestions != null && row < cat.AvailableQuestions.Count
+                    && cat.AvailableQuestions[row];
+                var value = (row + 1) * multiplier;
+                <div class="board-cell @(available ? "" : "used")">
+                    @if (available)
+                    {
+                        <span>$@value</span>
+                    }
+                </div>
+            }
+        }
+    </div>
+}
+
+@implements IDisposable
+
+@code {
+    private GameState State => Hub.CurrentState;
+
+    protected override void OnInitialized()
+    {
+        Hub.StateChanged += OnStateChanged;
+    }
+
+    private async void OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Hub.StateChanged -= OnStateChanged;
+    }
+}
