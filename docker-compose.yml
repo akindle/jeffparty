@@ -10,6 +10,8 @@ services:
 
   caddy:
     image: caddy:2
+    environment:
+      - SITE_ADDRESS=jeffparty.alexkindle.com
     ports:
       - "8080:80"
       - "8443:443"
