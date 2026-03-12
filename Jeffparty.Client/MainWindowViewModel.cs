@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 using Jeffparty.Client.Commands;
 using Jeffparty.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -11,6 +13,8 @@ namespace Jeffparty.Client
         public string Title => IsHost ? $"Jeffparty - Host [{LobbyCode}] - {ConnectionState}" : $"Jeffparty - {ConnectionState}";
 
         public string LobbyCode { get; }
+
+        public ICommand CopyInviteLinkCommand { get; }
 
         public ContestantsViewModel ContestantsViewModel { get; set; }
 
@@ -51,6 +55,9 @@ namespace Jeffparty.Client
         public MainWindowViewModel(IMessageHub server, PersistedSettings settings, ILoggerFactory loggerFactory)
         {
             LobbyCode = GenerateLobbyCode();
+            var baseUrl = settings.HostUrl.Replace("/ChatHub", "", StringComparison.OrdinalIgnoreCase);
+            CopyInviteLinkCommand = new RelayCommand(() =>
+                Clipboard.SetText($"{baseUrl}?lobby={LobbyCode}"));
             IsHost = settings.IsHost;
             Server = server;
             PersistedSettings = settings;

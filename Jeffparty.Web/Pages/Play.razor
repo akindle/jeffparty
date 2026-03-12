@@ -1,5 +1,6 @@
 @page "/play"
 @inject GameHubService Hub
+@inject IJSRuntime JS
 @implements IDisposable
 
 @if (Hub.IsKicked)
@@ -41,9 +42,19 @@
 @code {
     private GameState State => Hub.CurrentState;
 
+    private static readonly Dictionary<AudioClips, string> AudioFiles = new()
+    {
+        [AudioClips.Buzz] = "sounds/buzz.mp3",
+        [AudioClips.Ding] = "sounds/ding.mp3",
+        [AudioClips.Airhorn] = "sounds/mlg-airhorn.mp3",
+        [AudioClips.Timeout] = "sounds/timeout.mp3",
+        [AudioClips.Wrong] = "sounds/wrong.mp3",
+    };
+
     protected override void OnInitialized()
     {
         Hub.StateChanged += OnStateChanged;
+        Hub.AudioClipReceived += OnAudioClip;
     }
 
     private async void OnStateChanged()
@@ -51,8 +62,17 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    private async void OnAudioClip(AudioClips clip)
+    {
+        if (AudioFiles.TryGetValue(clip, out var src))
+        {
+            await JS.InvokeVoidAsync("playAudio", src);
+        }
+    }
+
     public void Dispose()
     {
         Hub.StateChanged -= OnStateChanged;
+        Hub.AudioClipReceived -= OnAudioClip;
     }
 }

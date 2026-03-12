@@ -15,6 +15,7 @@ public sealed class GameHubService : IAsyncDisposable
     public string? LobbyCode { get; private set; }
 
     public event Action? StateChanged;
+    public event Action<AudioClips>? AudioClipReceived;
 
     public GameHubService(string baseAddress)
     {
@@ -81,7 +82,7 @@ public sealed class GameHubService : IAsyncDisposable
 
         _connection.On<AudioClips>(nameof(IMessageSpoke.DoPlayAudio), clip =>
         {
-            // Audio not supported in browser client for now
+            AudioClipReceived?.Invoke(clip);
         });
 
         _connection.On<Guid>(nameof(IMessageSpoke.NotifyPlayerKicked), async kickedId =>
