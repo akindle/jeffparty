@@ -245,6 +245,20 @@ namespace Jeffparty.Client
             AudioPlaybackEngine.Instance.PlaySound(soundPath);
             return Task.CompletedTask;
         }
+
+        public async Task NotifyPlayerKicked(Guid kickedPlayer)
+        {
+            _logger.Trace();
+            await Dispatcher.InvokeAsync(() =>
+            {
+                var player = viewModel.ContestantsViewModel.Contestants
+                    .FirstOrDefault(c => c.Guid == kickedPlayer);
+                if (player != null)
+                {
+                    viewModel.ContestantsViewModel.Contestants.Remove(player);
+                }
+            });
+        }
     }
 
     class AudioPlaybackEngine : IDisposable

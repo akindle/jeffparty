@@ -11,6 +11,7 @@ public sealed class GameHubService : IAsyncDisposable
     public GameState CurrentState { get; private set; }
     public List<ContestantViewModel> Contestants { get; } = new();
     public bool IsConnected => _connection.State == HubConnectionState.Connected;
+    public bool IsKicked { get; private set; }
 
     public event Action? StateChanged;
 
@@ -76,6 +77,16 @@ public sealed class GameHubService : IAsyncDisposable
         _connection.On<AudioClips>(nameof(IMessageSpoke.DoPlayAudio), clip =>
         {
             // Audio not supported in browser client for now
+        });
+
+        _connection.On<Guid>(nameof(IMessageSpoke.NotifyPlayerKicked), async kickedId =>
+        {
+            if (kickedId == _playerId)
+            {
+                IsKicked = true;
+                await _connection.StopAsync();
+                StateChanged?.Invoke();
+            }
         });
     }
 

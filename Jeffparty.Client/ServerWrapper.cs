@@ -45,6 +45,7 @@ namespace Jeffparty.Client
             connection.On<Guid, int>(nameof(IMessageSpoke.NotifyPlayerWagered), spoke.NotifyPlayerWagered);
             connection.On<Guid, string>(nameof(IMessageSpoke.NotifyFinalJeopardyAnswer), spoke.NotifyFinalJeopardyAnswer);
             connection.On<AudioClips>(nameof(IMessageSpoke.DoPlayAudio), spoke.DoPlayAudio);
+            connection.On<Guid>(nameof(IMessageSpoke.NotifyPlayerKicked), spoke.NotifyPlayerKicked);
         }
 
         private string? _hostUrl;
@@ -110,6 +111,13 @@ namespace Jeffparty.Client
             _logger.Trace();
             if (_underlyingConnection == null) return false;
             return await _underlyingConnection.InvokeAsync<bool>(nameof(IMessageHub.RequestPlayAudio), clip);
+        }
+
+        public async Task<bool> KickPlayer(Guid playerGuid)
+        {
+            _logger.Trace();
+            if (_underlyingConnection == null) return false;
+            return await _underlyingConnection.InvokeAsync<bool>(nameof(IMessageHub.KickPlayer), playerGuid);
         }
     }
 }

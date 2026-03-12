@@ -37,6 +37,7 @@ namespace Jeffparty.Client
         
         public GradeFinalJeopardyCommand? CorrectFinalJeopardy { get; set; }
         public GradeFinalJeopardyCommand? IncorrectFinalJeopardy { get; set; }
+        public KickPlayer? KickPlayerCommand { get; set; }
 
         public ContestantsViewModel()
         {

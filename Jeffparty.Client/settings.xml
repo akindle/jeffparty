@@ -2,7 +2,7 @@
 <PersistedSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Guid>b20d210b-46db-44b9-8aec-bb79240fb65a</Guid>
   <PlayerName>New Player</PlayerName>
-  <HostUrl>http://localhost:5000/ChatHub</HostUrl>
+  <HostUrl>https://jeffparty.alexkindle.com/ChatHub</HostUrl>
   <IsHost>true</IsHost>
   <IsLightningRound>true</IsLightningRound>
 </PersistedSettings>

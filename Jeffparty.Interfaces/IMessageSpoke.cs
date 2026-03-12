@@ -15,6 +15,7 @@ namespace Jeffparty.Interfaces
         Task NotifyFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer);
 
         Task DoPlayAudio(AudioClips clip);
+        Task NotifyPlayerKicked(Guid kickedPlayer);
     }
 
     public interface IMessageHub
@@ -27,6 +28,7 @@ namespace Jeffparty.Interfaces
         Task<bool> QueryConnectedPlayers();
         Task<bool> SubmitFinalJeopardyAnswer(Guid settingsGuid, string playerFinalJeopardyAnswer);
         Task<bool> RequestPlayAudio(AudioClips clip);
+        Task<bool> KickPlayer(Guid playerGuid);
     }
 
     public enum AudioClips

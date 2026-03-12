@@ -65,6 +65,10 @@
                                             Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AdminSetScore}"
                                             CommandParameter="{Binding}" />
                                 </StackPanel>
+                                <Button Content="Kick"
+                                        Foreground="White" Background="DarkRed" Margin="0,5,0,0"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.KickPlayerCommand}"
+                                        CommandParameter="{Binding}" />
                             </StackPanel>
                         </StackPanel>
                     </Border>

@@ -2,6 +2,14 @@
 @inject GameHubService Hub
 @implements IDisposable
 
+@if (Hub.IsKicked)
+{
+    <div class="join-screen">
+        <p>You have been kicked from the game.</p>
+    </div>
+    return;
+}
+
 @if (!Hub.IsConnected)
 {
     <div class="join-screen">

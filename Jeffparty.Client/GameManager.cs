@@ -87,6 +87,7 @@ namespace Jeffparty.Client
             ReplaceCategory = new ReplaceCategory(this);
             SwapFinalJeopardyCommand = new SwapFinalJeopardy(this);
             SkipToNextRoundCommand = new SkipToNextRound(this);
+            contestants.KickPlayerCommand = new KickPlayer(this);
             ListenForAnswersCommand = new ListenForAnswers(this);
             QuestionTimer = new DispatcherTimer
             {

@@ -66,6 +66,13 @@ namespace Jeffparty.Server.Hubs
             return true;
         }
 
+        public async Task<bool> KickPlayer(Guid playerGuid)
+        {
+            _logger.LogInformation("KickPlayer: {PlayerGuid}", playerGuid);
+            await Clients.All.NotifyPlayerKicked(playerGuid);
+            return true;
+        }
+
         public override async Task OnConnectedAsync()
         {
             _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
